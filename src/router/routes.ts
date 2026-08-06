@@ -5,17 +5,40 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     component: () => import('@/layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('@/pages/IndexPage.vue') },
-      { path: 'second', component: () => import('@/pages/SecondPage.vue') },
+      { path: '', redirect: '/login' },
+
+      { path: 'login', component: () => import('@/pages/LoginPage.vue') },
+      { path: 'dashboard', component: () => import('@/pages/DashboardPage.vue') },
+      { path: 'admin', component: () => import('@/pages/AdminPage.vue') },
+      {
+  path: 'booking/:id',
+  component: () => import('@/pages/BookingPage.vue'),
+},
+
+      // Add this
+      { path: 'facilities', component: () => import('@/pages/FacilitiesPage.vue') },
+      {
+        path: 'history',
+        component: () => import('@/pages/BookingHistoryPage.vue'),
+      },
+
+      {
+  path: "pricing-rules",
+  component: () => import("@/pages/PricingRulesPage.vue"),
+},
+{
+  path: "admin/bookings",
+  component: () => import("@/pages/BookingsDashboardPage.vue"),
+},
     ],
   },
 
-  // Always leave this as last one,
-  // but you can also remove it
   {
     path: '/:catchAll(.*)*',
     component: () => import('@/pages/ErrorNotFound.vue'),
   },
+
+
 ];
 
 export default routes;

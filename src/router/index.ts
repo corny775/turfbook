@@ -6,6 +6,7 @@ import {
   createWebHistory,
 } from 'vue-router';
 
+import { useAuthStore } from '@/stores/auth';
 import routes from './routes';
 
 /*
@@ -33,6 +34,35 @@ export default defineRouter((/* { store, ssrContext } */) => {
     // quasar.conf.js -> build -> publicPath
     history: createHistory(import.meta.env.QUASAR_VUE_ROUTER_BASE),
   });
+
+  Router.beforeEach((to, from, next) => {
+  const auth = useAuthStore();
+
+  // Allow access to login page
+  if (to.path === '/login') {
+    if (auth.isLoggedIn) {
+      if (auth.isAdmin) {
+        return next('/admin');
+      } else {
+        return next('/facilities');
+      }
+    }
+
+    return next();
+  }
+
+  // Block unauthenticated users
+  if (!auth.isLoggedIn) {
+    return next('/login');
+  }
+
+  // Customer cannot access admin page
+  if (to.path === '/admin' && auth.isCustomer) {
+    return next('/facilities');
+  }
+
+  next();
+});
 
   return Router;
 });

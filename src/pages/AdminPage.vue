@@ -36,12 +36,13 @@
           />
 
           <q-btn
-            flat
-            round
-            color="negative"
-            icon="delete"
-            @click="deleteFacility(props.row.id)"
-          />
+  flat
+  round
+  color="negative"
+  icon="delete"
+  :loading="deleteLoading"
+  @click="deleteFacility(props.row.id)"
+/>
 
         </q-td>
 
@@ -61,36 +62,50 @@
 
         </q-card-section>
 
+        <q-form @submit.prevent="saveFacility">
+
         <q-card-section>
 
           <q-input
-            outlined
-            v-model="form.name"
-            label="Facility Name"
-            class="q-mb-md"
-          />
+  outlined
+  v-model="form.name"
+  label="Facility Name"
+  class="q-mb-md"
+  :rules="[
+    val => !!val || 'Facility name is required'
+  ]"
+/>
 
           <q-input
-            outlined
-            v-model="form.type"
-            label="Type"
-            class="q-mb-md"
-          />
+  outlined
+  v-model="form.type"
+  label="Type"
+  class="q-mb-md"
+  :rules="[
+    val => !!val || 'Facility type is required'
+  ]"
+/>
 
           <q-input
-            outlined
-            type="number"
-            v-model="form.base_rate"
-            label="Base Rate"
-            class="q-mb-md"
-          />
+  outlined
+  type="number"
+  v-model="form.base_rate"
+  label="Base Rate"
+  class="q-mb-md"
+  :rules="[
+    val => Number(val) > 0 || 'Base rate must be greater than 0'
+  ]"
+/>
 
           <q-input
-            outlined
-            type="number"
-            v-model="form.slot_duration"
-            label="Slot Duration"
-          />
+  outlined
+  type="number"
+  v-model="form.slot_duration"
+  label="Slot Duration"
+  :rules="[
+    val => Number(val) > 0 || 'Slot duration must be greater than 0'
+  ]"
+/>
 
         </q-card-section>
 
@@ -103,12 +118,15 @@
           />
 
           <q-btn
-            color="primary"
-            label="Save"
-            @click="saveFacility"
-          />
+  color="primary"
+  label="Save"
+  :loading="saveLoading"
+  
+/>
 
         </q-card-actions>
+
+        </q-form>
 
       </q-card>
 
@@ -119,7 +137,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useQuasar } from 'quasar';
 import type { QTableColumn } from 'quasar';
+import axios from 'axios';
 import api from '@/services/api';
 
 interface Facility {
@@ -139,6 +159,10 @@ interface FacilityForm {
 }
 
 const facilities = ref<Facility[]>([]);
+const $q = useQuasar();
+
+const saveLoading = ref(false);
+const deleteLoading = ref(false);
 
 const columns: QTableColumn<Facility>[] = [
   {
@@ -188,10 +212,20 @@ async function loadFacilities() {
   try {
     const response = await api.get('/facilities');
     facilities.value = response.data;
-  } catch (err) {
-    console.error(err);
-    alert('Failed to load facilities');
+  } catch (err: unknown) {
+  console.error(err);
+
+  let message = "Failed to load facilities";
+
+  if (axios.isAxiosError(err)) {
+    message = err.response?.data?.message ?? message;
   }
+
+  $q.notify({
+    type: "negative",
+    message,
+  });
+}
 }
 
 function editFacility(facility: Facility) {
@@ -209,6 +243,8 @@ function editFacility(facility: Facility) {
 }
 
 async function saveFacility() {
+  saveLoading.value = true;
+
   try {
     if (editing.value) {
 
@@ -219,7 +255,10 @@ async function saveFacility() {
         slot_duration: Number(form.value.slot_duration),
       });
 
-      alert("Facility updated successfully!");
+      $q.notify({
+        type: "positive",
+        message: "Facility updated successfully!",
+      });
 
     } else {
 
@@ -230,11 +269,13 @@ async function saveFacility() {
         slot_duration: Number(form.value.slot_duration),
       });
 
-      alert("Facility added successfully!");
+      $q.notify({
+        type: "positive",
+        message: "Facility added successfully!",
+      });
     }
 
     showDialog.value = false;
-
     editing.value = false;
 
     form.value = {
@@ -247,31 +288,65 @@ async function saveFacility() {
 
     await loadFacilities();
 
-  } catch (err) {
+  } catch (err: unknown) {
+
     console.error(err);
-    alert("Operation failed");
+
+    let message = "Operation failed";
+
+    if (axios.isAxiosError(err)) {
+      message = err.response?.data?.message ?? message;
+    }
+
+    $q.notify({
+      type: "negative",
+      message,
+    });
+
+  } finally {
+    saveLoading.value = false;
   }
 }
 
 async function deleteFacility(id: number) {
-  try {
-    const confirmed = confirm(
-      "Are you sure you want to delete this facility?"
-    );
+  const confirmed = confirm(
+    "Are you sure you want to delete this facility?"
+  );
 
-    if (!confirmed) {
-      return;
-    }
+  if (!confirmed) {
+    return;
+  }
+
+  deleteLoading.value = true;
+
+  try {
 
     await api.delete(`/facilities/${id}`);
 
     await loadFacilities();
 
-    alert("Facility deleted successfully!");
+    $q.notify({
+      type: "positive",
+      message: "Facility deleted successfully!",
+    });
 
-  } catch (err) {
+  } catch (err: unknown) {
+
     console.error(err);
-    alert("Failed to delete facility");
+
+    let message = "Failed to delete facility";
+
+    if (axios.isAxiosError(err)) {
+      message = err.response?.data?.message ?? message;
+    }
+
+    $q.notify({
+      type: "negative",
+      message,
+    });
+
+  } finally {
+    deleteLoading.value = false;
   }
 }
 

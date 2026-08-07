@@ -47,6 +47,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useQuasar } from 'quasar';
+import axios from 'axios';
 import api from '@/services/api';
 
 interface Booking {
@@ -60,13 +62,28 @@ interface Booking {
 }
 
 const bookings = ref<Booking[]>([]);
+const $q = useQuasar();
 
 async function loadBookings() {
   try {
     const response = await api.get("/bookings/user/1");
     bookings.value = response.data;
-  } catch (err) {
+
+  } catch (err: unknown) {
     console.error(err);
+
+    let message = "Failed to load booking history.";
+
+    if (axios.isAxiosError(err)) {
+      message = err.response?.data?.message ?? message;
+    }
+
+    $q.notify({
+      type: "negative",
+      message,
+    });
+
+    bookings.value = [];
   }
 }
 

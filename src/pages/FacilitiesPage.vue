@@ -46,6 +46,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
 import api from '@/services/api';
 
@@ -59,6 +60,7 @@ interface Facility {
 
 const facilities = ref<Facility[]>([]);
 const router = useRouter();
+const $q = useQuasar();
 
 function bookFacility(id: number) {
   void router.push(`/booking/${id}`);
@@ -69,8 +71,11 @@ async function loadFacilities() {
     const response = await api.get('/facilities');
     facilities.value = response.data;
   } catch {
-    alert('Failed to load facilities');
-  }
+  $q.notify({
+    type: 'negative',
+    message: 'Failed to load facilities.',
+  });
+}
 }
 
 onMounted(() => {

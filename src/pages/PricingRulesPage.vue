@@ -45,6 +45,8 @@
 
   <q-card style="min-width:350px">
 
+  <q-form @submit.prevent="saveRule">
+
     <q-card-section>
 
       <div class="text-h6">
@@ -64,29 +66,43 @@
       />
 
       <q-input
-        outlined
-        v-model="editingRule.value"
-        type="number"
-        label="Value"
-      />
+  outlined
+  v-model="editingRule.value"
+  type="number"
+  label="Value"
+  :rules="[
+    val => Number(val) > 0 || 'Value must be greater than 0'
+  ]"
+/>
 
     </q-card-section>
 
     <q-card-actions align="right">
 
-      <q-btn
-        flat
-        label="Cancel"
-        v-close-popup
-      />
+    <q-btn
+  flat
+  label="Cancel"
+  @click="
+    showDialog = false;
+    editingRule = {
+      id: 0,
+      facility_id: 0,
+      rule_type: '',
+      value: '',
+    };
+  "
+/>
 
-      <q-btn
-        color="primary"
-        label="Save"
-        @click="saveRule"
-      />
+    <q-btn
+      color="primary"
+      label="Save"
+      :loading="saveLoading"
+      type="submit"
+    />
 
-    </q-card-actions>
+  </q-card-actions>
+
+</q-form>
 
   </q-card>
 
@@ -96,7 +112,9 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from "vue";
+import { useQuasar } from "quasar";
 import type { QTableColumn } from "quasar";
+import axios from "axios";
 import api from "@/services/api";
 
 interface Facility {
@@ -114,6 +132,9 @@ interface Rule {
 const facilities = ref<Facility[]>([]);
 const selectedFacility = ref<Facility | null>(null);
 const rules = ref<Rule[]>([]);
+const $q = useQuasar();
+
+const saveLoading = ref(false);
 
 const showDialog = ref(false);
 
@@ -146,18 +167,49 @@ const columns: QTableColumn<Rule>[] = [
 ];
 
 async function loadFacilities() {
-  const response = await api.get("/facilities");
-  facilities.value = response.data;
+  try {
+    const response = await api.get("/facilities");
+    facilities.value = response.data;
+
+  } catch (err: unknown) {
+    console.error(err);
+
+    $q.notify({
+      type: "negative",
+      message: "Failed to load facilities.",
+    });
+  }
 }
 
 async function loadRules() {
-  if (!selectedFacility.value) return;
+  if (!selectedFacility.value) {
+    rules.value = [];
+    return;
+  }
 
-  const response = await api.get(
-    `/pricing-rules/${selectedFacility.value.id}`
-  );
+  try {
+    const response = await api.get(
+      `/pricing-rules/${selectedFacility.value.id}`
+    );
 
-  rules.value = response.data;
+    rules.value = response.data;
+
+  } catch (err: unknown) {
+    console.error(err);
+
+    let message = "Failed to load pricing rules.";
+
+    if (axios.isAxiosError(err)) {
+      message = err.response?.data?.message ?? message;
+    }
+
+    $q.notify({
+      type: "negative",
+      message,
+    });
+
+    rules.value = [];
+  }
 }
 
 function editRule(rule: Rule) {
@@ -166,8 +218,9 @@ function editRule(rule: Rule) {
 }
 
 async function saveRule() {
-  try {
+  saveLoading.value = true;
 
+  try {
     await api.put(
       `/pricing-rules/${editingRule.value.id}`,
       {
@@ -179,12 +232,27 @@ async function saveRule() {
 
     await loadRules();
 
-    alert("Pricing rule updated!");
+    $q.notify({
+      type: "positive",
+      message: "Pricing rule updated successfully!",
+    });
 
-  } catch (err) {
+  } catch (err: unknown) {
     console.error(err);
 
-    alert("Update failed");
+    let message = "Update failed";
+
+    if (axios.isAxiosError(err)) {
+      message = err.response?.data?.message ?? message;
+    }
+
+    $q.notify({
+      type: "negative",
+      message,
+    });
+
+  } finally {
+    saveLoading.value = false;
   }
 }
 

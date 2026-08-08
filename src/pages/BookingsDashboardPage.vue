@@ -61,7 +61,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
+import { useQuasar } from "quasar";
 import type { QTableColumn } from "quasar";
+import axios from "axios";
 import api from "@/services/api";
 
 interface Booking {
@@ -76,6 +78,7 @@ interface Booking {
 }
 
 const bookings = ref<Booking[]>([]);
+const $q = useQuasar();
 const facilityFilter = ref("All");
 const statusFilter = ref("All");
 const dateFilter = ref("");
@@ -126,8 +129,26 @@ const columns: QTableColumn<Booking>[] = [
 ];
 
 async function loadBookings() {
-  const response = await api.get("/admin/bookings");
-  bookings.value = response.data;
+  try {
+    const response = await api.get("/admin/bookings");
+    bookings.value = response.data;
+
+  } catch (err: unknown) {
+    console.error(err);
+
+    let message = "Failed to load bookings.";
+
+    if (axios.isAxiosError(err)) {
+      message = err.response?.data?.message ?? message;
+    }
+
+    $q.notify({
+      type: "negative",
+      message,
+    });
+
+    bookings.value = [];
+  }
 }
 
 const facilityOptions = computed(() => {

@@ -275,7 +275,7 @@ async function confirmBooking() {
     // Create booking
     await api.post("/bookings", {
       user_id: 1,
-      facility_id: Number(facilityId),
+      facility_id: Number(facilityId), 
       booking_date: selectedDate.value,
       start_time: `${slot}:00`,
       end_time: `${endHour.toString().padStart(2, "0")}:00:00`,

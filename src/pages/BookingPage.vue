@@ -15,81 +15,29 @@
         ₹{{ facility.base_rate }}/hour
       </div>
 
-      <q-date
+<BookingSelection
   v-model="selectedDate"
-  mask="YYYY-MM-DD"
-  class="q-mb-lg"
-  :options="dateOptions"
-  @update:model-value="loadBookings"
+  :bookings="bookings"
+  :slots="slots"
+  @date-change="loadBookings"
+  @select-slot="void openBookingDialog($event)"
 />
 
-      <div class="text-h6 q-mt-lg q-mb-md">
-  Available Slots
-</div>
-
-<q-list bordered separator>
-
-  <q-item
-    v-for="slot in slots"
-    :key="slot"
-  >
-
-    <q-item-section>
-      {{ slot }} - {{ Number(slot.split(':')[0]) + 1 }}:00
-    </q-item-section>
-
-    <q-item-section side>
-
-      <q-btn
-  :color="isBooked(slot) ? 'red' : 'primary'"
-  :label="isBooked(slot) ? 'Booked' : 'Book'"
-  :disable="isBooked(slot) || dialogLoading"
-  :loading="dialogLoading"
-  @click="void openBookingDialog(slot)"
+<BookingConfirmation
+  :show-dialog="confirmDialog"
+  :facility="facility"
+  :selected-date="selectedDate"
+  :selected-slot="selectedSlot"
+  :calculated-price="calculatedPrice"
+  :confirm-loading="confirmLoading"
+  @close="
+    confirmDialog = false;
+    selectedSlot = '';
+  "
+  @confirm-booking="confirmBooking"
 />
 
-    </q-item-section>
 
-  </q-item>
-
-</q-list>
-<q-dialog v-model="confirmDialog">
-
-  <q-card style="min-width:350px">
-
-    <q-card-section>
-
-      <div class="text-h6">
-        Confirm Booking
-      </div>
-
-    </q-card-section>
-
-    <q-card-section>
-
-      <div><b>Facility:</b> {{ facility?.name }}</div>
-
-      <div><b>Date:</b> {{ selectedDate }}</div>
-
-      <div><b>Slot:</b> {{ selectedSlot }} -
-        {{ Number(selectedSlot.split(':')[0]) + 1 }}:00
-      </div>
-
-      <div>
-  <b>Amount:</b>
-
-  <span v-if="calculatedPrice !== null">
-    ₹{{ calculatedPrice.toFixed(2) }}
-  </span>
-
-  <span v-else>
-    Calculating...
-  </span>
-</div>
-
-    </q-card-section>
-
-    <q-card-actions align="right">
 
       <q-btn
   flat
@@ -108,11 +56,6 @@
   @click="confirmBooking"
 />
 
-    </q-card-actions>
-
-  </q-card>
-
-</q-dialog>
 
     </div>
 
@@ -124,6 +67,8 @@ import { ref, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
+import BookingSelection from "@/components/BookingSelection.vue";
+import BookingConfirmation from "@/components/BookingConfirmation.vue";
 import api from '@/services/api';
 
 interface Facility {
@@ -233,12 +178,6 @@ async function calculatePrice(slot: string) {
   }
 }
 
-function isBooked(slot: string) {
-  return bookings.value.some(
-    (booking) => booking.start_time.substring(0, 5) === slot
-  );
-}
-
 async function openBookingDialog(slot: string) {
   if (!selectedDate.value) {
     $q.notify({
@@ -259,10 +198,6 @@ async function openBookingDialog(slot: string) {
   } finally {
     dialogLoading.value = false;
   }
-}
-
-function dateOptions(date: string) {
-  return date >= new Date().toISOString().slice(0, 10);
 }
 
 async function confirmBooking() {

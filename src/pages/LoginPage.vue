@@ -1,39 +1,65 @@
 <template>
-  <q-page class="flex flex-center bg-grey-2">
-    <q-card class="q-pa-lg" style="width: 350px">
+  <q-page class="flex flex-center login-page">
+    <q-card class="login-card q-pa-lg">
 
-      <div class="text-h5 text-center q-mb-lg">
-        TurfBook Login
+      <div class="column items-center q-mb-lg">
+        <q-avatar size="56px" color="primary" text-color="white" class="q-mb-sm">
+          <q-icon name="sports_soccer" size="30px" />
+        </q-avatar>
+
+        <div class="text-h5 text-weight-bold">TurfBook</div>
+        <div class="text-body2 text-grey-7">Sign in to manage your bookings</div>
       </div>
 
-      <q-input
-  outlined
-  v-model="username"
-  label="Username"
-  class="q-mb-md"
-  :rules="[
-    val => !!val || 'Username is required'
-  ]"
-/>
+      <q-form @submit.prevent="login">
 
-      <q-input
-  outlined
-  v-model="password"
-  type="password"
-  label="Password"
-  class="q-mb-md"
-  :rules="[
-    val => !!val || 'Password is required'
-  ]"
-/>
+        <q-input
+          outlined
+          v-model="username"
+          label="Username"
+          class="q-mb-md"
+          autofocus
+          :rules="[
+            val => !!val || 'Username is required'
+          ]"
+        >
+          <template v-slot:prepend>
+            <q-icon name="person" />
+          </template>
+        </q-input>
 
-      <q-btn
-  color="primary"
-  label="Login"
-  class="full-width"
-  :loading="loading"
-  @click="login"
-/>
+        <q-input
+          outlined
+          v-model="password"
+          :type="showPassword ? 'text' : 'password'"
+          label="Password"
+          class="q-mb-md"
+          :rules="[
+            val => !!val || 'Password is required'
+          ]"
+        >
+          <template v-slot:prepend>
+            <q-icon name="lock" />
+          </template>
+          <template v-slot:append>
+            <q-icon
+              :name="showPassword ? 'visibility_off' : 'visibility'"
+              class="cursor-pointer"
+              @click="showPassword = !showPassword"
+            />
+          </template>
+        </q-input>
+
+        <q-btn
+          color="primary"
+          label="Login"
+          type="submit"
+          unelevated
+          class="full-width q-py-sm q-mt-sm"
+          :loading="loading"
+        />
+
+      </q-form>
 
     </q-card>
   </q-page>
@@ -54,15 +80,16 @@ const $q = useQuasar();
 const username = ref('');
 const password = ref('');
 const loading = ref(false);
+const showPassword = ref(false);
 
 async function login() {
   if (!username.value.trim() || !password.value.trim()) {
-  $q.notify({
-    type: "warning",
-    message: "Please enter both username and password.",
-  });
-  return;
-}
+    $q.notify({
+      type: "warning",
+      message: "Please enter both username and password.",
+    });
+    return;
+  }
   loading.value = true;
 
   try {
@@ -74,9 +101,9 @@ async function login() {
     auth.login(response.data);
 
     $q.notify({
-  type: 'positive',
-  message: 'Login successful!',
-});
+      type: 'positive',
+      message: 'Login successful!',
+    });
 
     if (response.data.role === 'admin') {
       await router.push('/admin');
@@ -85,18 +112,33 @@ async function login() {
     }
   } catch (err: unknown) {
     console.error(err);
-  let message = 'Invalid username or password';
+    let message = 'Invalid username or password';
 
-  if (axios.isAxiosError(err)) {
-    message = err.response?.data?.message ?? message;
-  }
+    if (axios.isAxiosError(err)) {
+      message = err.response?.data?.message ?? message;
+    }
 
-  $q.notify({
-  type: 'negative',
-  message,
-});
-} finally {
+    $q.notify({
+      type: 'negative',
+      message,
+    });
+  } finally {
     loading.value = false;
   }
 }
 </script>
+
+<style scoped>
+.login-page {
+  min-height: 100vh;
+}
+
+.login-card {
+  width: 380px;
+  max-width: 90vw;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 12px 32px rgba(27, 94, 32, 0.15);
+}
+</style>

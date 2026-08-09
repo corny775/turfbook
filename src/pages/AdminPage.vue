@@ -1,130 +1,202 @@
 <template>
-  <q-page class="q-pa-md">
+  <q-page class="q-pa-md admin-page">
 
     <div class="row items-center justify-between q-mb-lg">
 
-      <div class="text-h4">
-        Facility Management
+      <div>
+        <div class="text-h4 text-weight-bold">Facility Management</div>
+        <div class="text-subtitle2 text-grey-7">
+          {{ facilities.length }} facilit{{ facilities.length === 1 ? 'y' : 'ies' }} configured
+        </div>
       </div>
 
       <q-btn
+        unelevated
         color="primary"
+        icon="add"
         label="Add Facility"
-        @click="showDialog = true"
+        class="q-px-md"
+        @click="openAddDialog"
       />
 
     </div>
 
-    <q-table
-      :rows="facilities"
-      :columns="columns"
-      row-key="id"
-      flat
-      bordered
-    >
+    <q-card flat bordered class="table-card">
+      <q-table
+        :rows="facilities"
+        :columns="columns"
+        :filter="search"
+        :loading="loading"
+        row-key="id"
+        flat
+        :rows-per-page-options="[10, 25, 50]"
+      >
 
-      <template v-slot:body-cell-actions="props">
+        <template v-slot:top-right>
+          <q-input
+            v-model="search"
+            dense
+            outlined
+            debounce="300"
+            placeholder="Search facilities..."
+            class="search-input"
+          >
+            <template v-slot:prepend>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </template>
 
-        <q-td align="center">
+        <template v-slot:body-cell-name="props">
+          <q-td :props="props">
+            <div class="text-weight-medium">{{ props.row.name }}</div>
+          </q-td>
+        </template>
 
-          <q-btn
-            flat
-            round
-            color="primary"
-            icon="edit"
-            @click="editFacility(props.row)"
-          />
+        <template v-slot:body-cell-type="props">
+          <q-td :props="props">
+            <q-chip dense square color="green-1" text-color="primary" class="text-weight-medium">
+              {{ props.row.type }}
+            </q-chip>
+          </q-td>
+        </template>
 
-          <q-btn
-  flat
-  round
-  color="negative"
-  icon="delete"
-  :loading="deleteLoading"
-  @click="deleteFacility(props.row.id)"
-/>
+        <template v-slot:body-cell-base_rate="props">
+          <q-td :props="props">
+            ₹{{ props.row.base_rate }}
+          </q-td>
+        </template>
 
-        </q-td>
+        <template v-slot:body-cell-slot_duration="props">
+          <q-td :props="props">
+            {{ props.row.slot_duration }} min
+          </q-td>
+        </template>
 
-      </template>
+        <template v-slot:body-cell-actions="props">
 
-    </q-table>
+          <q-td align="center" :props="props">
+
+            <q-btn
+              flat
+              round
+              dense
+              color="primary"
+              icon="edit"
+              class="q-mr-xs"
+              @click="editFacility(props.row)"
+            >
+              <q-tooltip>Edit</q-tooltip>
+            </q-btn>
+
+            <q-btn
+              flat
+              round
+              dense
+              color="negative"
+              icon="delete"
+              :loading="deleteLoading"
+              @click="deleteFacility(props.row.id)"
+            >
+              <q-tooltip>Delete</q-tooltip>
+            </q-btn>
+
+          </q-td>
+
+        </template>
+
+        <template v-slot:no-data>
+          <div class="full-width column items-center q-pa-xl text-grey-6">
+            <q-icon name="domain" size="48px" class="q-mb-sm" />
+            <div>No facilities yet. Add your first one to get started.</div>
+          </div>
+        </template>
+
+      </q-table>
+    </q-card>
 
     <q-dialog v-model="showDialog">
 
-      <q-card style="min-width:400px">
+      <q-card style="min-width:420px" class="dialog-card">
 
-        <q-card-section>
-
+        <q-card-section class="row items-center q-pb-none">
+          <q-icon
+            :name="editing ? 'edit' : 'add_circle'"
+            color="primary"
+            size="28px"
+            class="q-mr-sm"
+          />
           <div class="text-h6">
             {{ editing ? "Edit Facility" : "Add Facility" }}
           </div>
-
         </q-card-section>
 
         <q-form @submit.prevent="saveFacility">
 
-        <q-card-section>
+          <q-card-section>
 
-          <q-input
-  outlined
-  v-model="form.name"
-  label="Facility Name"
-  class="q-mb-md"
-  :rules="[
-    val => !!val || 'Facility name is required'
-  ]"
-/>
+            <q-input
+              outlined
+              v-model="form.name"
+              label="Facility Name"
+              class="q-mb-md"
+              :rules="[
+                val => !!val || 'Facility name is required'
+              ]"
+            />
 
-          <q-input
-  outlined
-  v-model="form.type"
-  label="Type"
-  class="q-mb-md"
-  :rules="[
-    val => !!val || 'Facility type is required'
-  ]"
-/>
+            <q-input
+              outlined
+              v-model="form.type"
+              label="Type"
+              class="q-mb-md"
+              :rules="[
+                val => !!val || 'Facility type is required'
+              ]"
+            />
 
-          <q-input
-  outlined
-  type="number"
-  v-model="form.base_rate"
-  label="Base Rate"
-  class="q-mb-md"
-  :rules="[
-    val => Number(val) > 0 || 'Base rate must be greater than 0'
-  ]"
-/>
+            <q-input
+              outlined
+              type="number"
+              v-model="form.base_rate"
+              label="Base Rate"
+              prefix="₹"
+              class="q-mb-md"
+              :rules="[
+                val => Number(val) > 0 || 'Base rate must be greater than 0'
+              ]"
+            />
 
-          <q-input
-  outlined
-  type="number"
-  v-model="form.slot_duration"
-  label="Slot Duration"
-  :rules="[
-    val => Number(val) > 0 || 'Slot duration must be greater than 0'
-  ]"
-/>
+            <q-input
+              outlined
+              type="number"
+              v-model="form.slot_duration"
+              label="Slot Duration (minutes)"
+              :rules="[
+                val => Number(val) > 0 || 'Slot duration must be greater than 0'
+              ]"
+            />
 
-        </q-card-section>
+          </q-card-section>
 
-        <q-card-actions align="right">
+          <q-card-actions align="right" class="q-pa-md q-pt-none">
 
-          <q-btn
-            flat
-            label="Cancel"
-            v-close-popup
-          />
+            <q-btn
+              flat
+              label="Cancel"
+              color="grey-8"
+              v-close-popup
+            />
 
-          <q-btn
-  color="primary"
-  label="Save"
-  :loading="saveLoading"
-  
-/>
+            <q-btn
+              unelevated
+              color="primary"
+              label="Save"
+              type="submit"
+              :loading="saveLoading"
+            />
 
-        </q-card-actions>
+          </q-card-actions>
 
         </q-form>
 
@@ -161,8 +233,10 @@ interface FacilityForm {
 const facilities = ref<Facility[]>([]);
 const $q = useQuasar();
 
+const loading = ref(false);
 const saveLoading = ref(false);
 const deleteLoading = ref(false);
+const search = ref('');
 
 const columns: QTableColumn<Facility>[] = [
   {
@@ -170,24 +244,28 @@ const columns: QTableColumn<Facility>[] = [
     label: 'Name',
     field: 'name',
     align: 'left',
+    sortable: true,
   },
   {
     name: 'type',
     label: 'Type',
     field: 'type',
     align: 'left',
+    sortable: true,
   },
   {
     name: 'base_rate',
     label: 'Base Rate',
     field: 'base_rate',
     align: 'left',
+    sortable: true,
   },
   {
     name: 'slot_duration',
     label: 'Duration',
     field: 'slot_duration',
     align: 'left',
+    sortable: true,
   },
   {
     name: 'actions',
@@ -208,24 +286,44 @@ const form = ref<FacilityForm>({
   slot_duration: 60,
 });
 
+function resetForm() {
+  form.value = {
+    id: null,
+    name: "",
+    type: "",
+    base_rate: 0,
+    slot_duration: 60,
+  };
+}
+
+function openAddDialog() {
+  editing.value = false;
+  resetForm();
+  showDialog.value = true;
+}
+
 async function loadFacilities() {
+  loading.value = true;
+
   try {
     const response = await api.get('/facilities');
     facilities.value = response.data;
   } catch (err: unknown) {
-  console.error(err);
+    console.error(err);
 
-  let message = "Failed to load facilities";
+    let message = "Failed to load facilities";
 
-  if (axios.isAxiosError(err)) {
-    message = err.response?.data?.message ?? message;
+    if (axios.isAxiosError(err)) {
+      message = err.response?.data?.message ?? message;
+    }
+
+    $q.notify({
+      type: "negative",
+      message,
+    });
+  } finally {
+    loading.value = false;
   }
-
-  $q.notify({
-    type: "negative",
-    message,
-  });
-}
 }
 
 function editFacility(facility: Facility) {
@@ -278,13 +376,7 @@ async function saveFacility() {
     showDialog.value = false;
     editing.value = false;
 
-    form.value = {
-      id: null,
-      name: "",
-      type: "",
-      base_rate: 0,
-      slot_duration: 60,
-    };
+    resetForm();
 
     await loadFacilities();
 
@@ -354,3 +446,23 @@ onMounted(() => {
   void loadFacilities();
 });
 </script>
+
+<style scoped>
+.admin-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.table-card {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.search-input {
+  width: 260px;
+}
+
+.dialog-card {
+  border-radius: 12px;
+}
+</style>

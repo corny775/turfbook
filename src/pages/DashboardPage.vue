@@ -32,10 +32,10 @@
           <q-card-section class="row items-center no-wrap">
             <q-avatar color="green-6" text-color="white" icon="event" size="46px" class="q-mr-md" />
             <div>
-              <div class="text-caption text-grey-6">My Bookings</div>
+              <div class="text-caption text-grey-6">Past Bookings</div>
               <div class="text-h5 text-weight-bold">
                 <q-skeleton v-if="loading" type="text" width="30px" />
-                <template v-else>{{ myBookings.length }}</template>
+                <template v-else>{{ myBookings.length - upcomingCount }}</template>
               </div>
             </div>
           </q-card-section>
@@ -47,7 +47,7 @@
           <q-card-section class="row items-center no-wrap">
             <q-avatar color="teal-6" text-color="white" icon="event_upcoming" size="46px" class="q-mr-md" />
             <div>
-              <div class="text-caption text-grey-6">Upcoming</div>
+              <div class="text-caption text-grey-6">Current bookings</div>
               <div class="text-h5 text-weight-bold">
                 <q-skeleton v-if="loading" type="text" width="30px" />
                 <template v-else>{{ upcomingCount }}</template>
@@ -100,7 +100,7 @@
           flat
           bordered
           class="action-card cursor-pointer"
-          @click="router.push('/bookings/history')"
+          @click="router.push('/history')"
         >
           <q-card-section class="row items-center no-wrap">
             <q-icon name="history" size="36px" color="primary" class="q-mr-md" />

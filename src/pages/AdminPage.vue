@@ -29,7 +29,7 @@
         :loading="loading"
         row-key="id"
         flat
-        :rows-per-page-options="[10, 25, 50]"
+        :rows-per-page-options="[5, 10, 15, 20, 25]"
       >
 
         <template v-slot:top-right>

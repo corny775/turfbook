@@ -35,7 +35,8 @@
           label="Password"
           class="q-mb-md"
           :rules="[
-            val => !!val || 'Password is required'
+            val => !!val || 'Password is required',
+            val => val.length >= 8 || 'Password must be a length of atleast 8 characters'
           ]"
         >
           <template v-slot:prepend>
@@ -108,7 +109,7 @@ async function login() {
     if (response.data.role === 'admin') {
       await router.push('/admin');
     } else {
-      await router.push('/facilities');
+      await router.push('/dashboard');
     }
   } catch (err: unknown) {
     console.error(err);

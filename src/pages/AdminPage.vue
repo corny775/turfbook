@@ -400,19 +400,25 @@ async function saveFacility() {
   }
 }
 
-async function deleteFacility(id: number) {
-  const confirmed = confirm(
-    "Are you sure you want to delete this facility?"
-  );
+function deleteFacility(id: number) {
+  $q.dialog({
+    title: "Delete Facility",
+    message: "Are you sure you want to delete this facility?",
+    cancel: true,
+    persistent: true,
+    ok: {
+      label: "Delete",
+      color: "negative",
+    },
+  }).onOk(() => {
+    void performDelete(id);
+  });
+}
 
-  if (!confirmed) {
-    return;
-  }
-
+async function performDelete(id: number) {
   deleteLoading.value = true;
 
   try {
-
     await api.delete(`/facilities/${id}`);
 
     await loadFacilities();
@@ -423,7 +429,6 @@ async function deleteFacility(id: number) {
     });
 
   } catch (err: unknown) {
-
     console.error(err);
 
     let message = "Failed to delete facility";

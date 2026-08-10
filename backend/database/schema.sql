@@ -56,8 +56,24 @@ INSERT INTO facilities (name, type, base_rate, slot_duration) VALUES
 ('Box Cricket Net', 'Cricket', 500, 60);
 
 -- SAMPLE PRICING RULES
+
+-- Turf 1
 INSERT INTO pricing_rules (facility_id, rule_type, value) VALUES
 (1, 'peak', 1.50),
 (1, 'weekend', 1.20),
 (1, 'discount', 10),
 (1, 'tax', 18);
+
+-- Badminton Court A
+INSERT INTO pricing_rules (facility_id, rule_type, value) VALUES
+(2, 'peak', 1.30),
+(2, 'weekend', 1.15),
+(2, 'discount', 5),
+(2, 'tax', 18);
+
+-- Box Cricket Net
+INSERT INTO pricing_rules (facility_id, rule_type, value) VALUES
+(3, 'peak', 1.40),
+(3, 'weekend', 1.25),
+(3, 'discount', 8),
+(3, 'tax', 18);

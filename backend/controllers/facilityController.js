@@ -61,10 +61,42 @@ exports.createFacility = (req, res) => {
         });
       }
 
-      res.json({
-        message: "Facility created successfully",
-        id: result.insertId,
+      const facilityId = result.insertId;
+
+const pricingSql = `
+  INSERT INTO pricing_rules (facility_id, rule_type, value)
+  VALUES
+    (?, 'peak', 1.00),
+    (?, 'weekend', 1.00),
+    (?, 'discount', 0),
+    (?, 'tax', 18)
+`;
+
+db.query(
+  pricingSql,
+  [
+    facilityId,
+    facilityId,
+    facilityId,
+    facilityId,
+  ],
+  (pricingErr) => {
+
+    if (pricingErr) {
+      console.error(pricingErr);
+
+      return res.status(500).json({
+        message: "Facility created, but default pricing rules could not be created.",
       });
+    }
+
+    res.json({
+      message: "Facility created successfully",
+      id: facilityId,
+    });
+
+  }
+);
     }
   );
 };
@@ -117,19 +149,33 @@ exports.updateFacility = (req, res) => {
 exports.deleteFacility = (req, res) => {
   const { id } = req.params;
 
-  const sql = "DELETE FROM facilities WHERE id = ?";
+  const deletePricingSql =
+    "DELETE FROM pricing_rules WHERE facility_id = ?";
 
-  db.query(sql, [id], (err) => {
-    if (err) {
-      console.log(err);
+  const deleteFacilitySql =
+    "DELETE FROM facilities WHERE id = ?";
+
+  db.query(deletePricingSql, [id], (pricingErr) => {
+    if (pricingErr) {
+      console.error(pricingErr);
 
       return res.status(500).json({
-        message: err.message,
+        message: pricingErr.message,
       });
     }
 
-    res.json({
-      message: "Facility deleted successfully",
+    db.query(deleteFacilitySql, [id], (facilityErr) => {
+      if (facilityErr) {
+        console.error(facilityErr);
+
+        return res.status(500).json({
+          message: facilityErr.message,
+        });
+      }
+
+      res.json({
+        message: "Facility deleted successfully",
+      });
     });
   });
 };

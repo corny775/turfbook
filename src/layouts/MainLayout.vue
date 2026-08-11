@@ -40,59 +40,86 @@
     <q-drawer v-model="drawerOpen" side="left" bordered class="drawer">
       <q-list padding>
 
-        <q-item-label header class="text-weight-bold text-grey-8">
-          Navigate
-        </q-item-label>
+  <!-- CUSTOMER NAVIGATION -->
+  <template v-if="auth.isCustomer">
 
-        <q-item clickable v-ripple to="/dashboard" exact>
-          <q-item-section avatar>
-            <q-icon name="dashboard" />
-          </q-item-section>
-          <q-item-section>Dashboard</q-item-section>
-        </q-item>
+    <q-item-label header class="text-weight-bold text-grey-8">
+      Navigate
+    </q-item-label>
 
-        <q-item clickable v-ripple to="/facilities" exact>
-          <q-item-section avatar>
-            <q-icon name="domain" />
-          </q-item-section>
-          <q-item-section>Facilities</q-item-section>
-        </q-item>
+    <q-item clickable v-ripple to="/dashboard" exact>
+      <q-item-section avatar>
+        <q-icon name="dashboard" />
+      </q-item-section>
 
-        <q-item clickable v-ripple to="/history" exact>
-          <q-item-section avatar>
-            <q-icon name="history" />
-          </q-item-section>
-          <q-item-section>My Bookings</q-item-section>
-        </q-item>
+      <q-item-section>
+        Dashboard
+      </q-item-section>
+    </q-item>
 
-        <q-separator class="q-my-sm" />
+    <q-item clickable v-ripple to="/facilities" exact>
+      <q-item-section avatar>
+        <q-icon name="domain" />
+      </q-item-section>
 
-        <q-item-label header class="text-weight-bold text-grey-8">
-          Admin
-        </q-item-label>
+      <q-item-section>
+        Facilities
+      </q-item-section>
+    </q-item>
 
-        <q-item clickable v-ripple to="/admin" exact>
-          <q-item-section avatar>
-            <q-icon name="settings" />
-          </q-item-section>
-          <q-item-section>Facility Management</q-item-section>
-        </q-item>
+    <q-item clickable v-ripple to="/history" exact>
+      <q-item-section avatar>
+        <q-icon name="history" />
+      </q-item-section>
 
-        <q-item clickable v-ripple to="/admin/bookings" exact>
-          <q-item-section avatar>
-            <q-icon name="event_note" />
-          </q-item-section>
-          <q-item-section>Bookings Dashboard</q-item-section>
-        </q-item>
+      <q-item-section>
+        My Bookings
+      </q-item-section>
+    </q-item>
 
-        <q-item clickable v-ripple to="/pricing-rules" exact>
-          <q-item-section avatar>
-            <q-icon name="sell" />
-          </q-item-section>
-          <q-item-section>Pricing Rules</q-item-section>
-        </q-item>
+  </template>
 
-      </q-list>
+
+  <!-- ADMIN NAVIGATION -->
+  <template v-if="auth.isAdmin">
+
+    <q-item-label header class="text-weight-bold text-grey-8">
+      Admin
+    </q-item-label>
+
+    <q-item clickable v-ripple to="/admin" exact>
+      <q-item-section avatar>
+        <q-icon name="settings" />
+      </q-item-section>
+
+      <q-item-section>
+        Facility Management
+      </q-item-section>
+    </q-item>
+
+    <q-item clickable v-ripple to="/admin/bookings" exact>
+      <q-item-section avatar>
+        <q-icon name="event_note" />
+      </q-item-section>
+
+      <q-item-section>
+        Bookings Dashboard
+      </q-item-section>
+    </q-item>
+
+    <q-item clickable v-ripple to="/pricing-rules" exact>
+      <q-item-section avatar>
+        <q-icon name="sell" />
+      </q-item-section>
+
+      <q-item-section>
+        Pricing Rules
+      </q-item-section>
+    </q-item>
+
+  </template>
+
+</q-list>
     </q-drawer>
 
     <q-page-container>

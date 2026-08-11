@@ -62,6 +62,16 @@
 
       </q-form>
 
+      <div class="text-center q-mt-lg">
+        Don't have an account?
+        <router-link
+          to="/signup"
+          class="text-primary text-weight-bold"
+        >
+          Signup
+        </router-link>
+      </div>
+
     </q-card>
   </q-page>
 </template>

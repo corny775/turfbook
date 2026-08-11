@@ -38,13 +38,13 @@ export default defineRouter((/* { store, ssrContext } */) => {
   Router.beforeEach((to, from, next) => {
   const auth = useAuthStore();
 
-  // Allow access to login page
-  if (to.path === '/login') {
+  // Login and signup are public
+  if (to.path === '/login' || to.path === '/signup') {
     if (auth.isLoggedIn) {
       if (auth.isAdmin) {
         return next('/admin');
       } else {
-        return next('/facilities');
+        return next('/dashboard');
       }
     }
 
@@ -56,9 +56,31 @@ export default defineRouter((/* { store, ssrContext } */) => {
     return next('/login');
   }
 
-  // Customer cannot access admin page
-  if (to.path === '/admin' && auth.isCustomer) {
-    return next('/facilities');
+  // ADMIN-ONLY pages
+  if (
+    to.path === '/admin' ||
+    to.path === '/admin/bookings' ||
+    to.path === '/pricing-rules'
+  ) {
+    if (!auth.isAdmin) {
+      return next('/dashboard');
+    }
+
+    return next();
+  }
+
+  // CUSTOMER-ONLY pages
+  if (
+    to.path === '/dashboard' ||
+    to.path === '/facilities' ||
+    to.path.startsWith('/booking/') ||
+    to.path === '/history'
+  ) {
+    if (!auth.isCustomer) {
+      return next('/admin');
+    }
+
+    return next();
   }
 
   next();

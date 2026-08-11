@@ -8,6 +8,7 @@ const routes: RouteRecordRaw[] = [
       { path: '', redirect: '/login' },
 
       { path: 'login', component: () => import('@/pages/LoginPage.vue') },
+      { path: 'signup', component: () => import('@/pages/SignupPage.vue') },
       { path: 'dashboard', component: () => import('@/pages/DashboardPage.vue') },
       { path: 'admin', component: () => import('@/pages/AdminPage.vue') },
       {

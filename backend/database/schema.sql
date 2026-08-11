@@ -9,6 +9,8 @@ DROP TABLE IF EXISTS users;
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    contact_number VARCHAR(20) NOT NULL,
     password VARCHAR(255) NOT NULL,
     role ENUM('admin','customer') NOT NULL
 );
@@ -46,8 +48,10 @@ CREATE TABLE bookings (
 );
 
 -- SAMPLE ADMIN
-INSERT INTO users (username, password, role)
-VALUES ('admin', 'admin123', 'admin');
+INSERT INTO users
+(username, email, contact_number, password, role)
+VALUES
+('admin', 'admin@turfbook.com', '9999999999', 'admin123', 'admin');
 
 -- SAMPLE FACILITIES
 INSERT INTO facilities (name, type, base_rate, slot_duration) VALUES

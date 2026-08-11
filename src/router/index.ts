@@ -74,7 +74,8 @@ export default defineRouter((/* { store, ssrContext } */) => {
     to.path === '/dashboard' ||
     to.path === '/facilities' ||
     to.path.startsWith('/booking/') ||
-    to.path === '/history'
+    to.path === '/history' ||
+    to.path === '/how-it-works'
   ) {
     if (!auth.isCustomer) {
       return next('/admin');

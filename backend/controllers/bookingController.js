@@ -189,3 +189,44 @@ exports.calculateBookingPrice = async (req, res) => {
     });
   }
 };
+
+exports.cancelBooking = (req, res) => {
+  const { id } = req.params;
+  const { user_id } = req.body;
+
+  if (!user_id) {
+    return res.status(400).json({
+      message: "User ID is required.",
+    });
+  }
+
+  const sql = `
+    UPDATE bookings
+    SET status = 'Cancelled'
+    WHERE id = ?
+      AND user_id = ?
+      AND status = 'Booked'
+      AND TIMESTAMP(booking_date, start_time) > NOW()
+  `;
+
+  db.query(sql, [id, user_id], (err, result) => {
+    if (err) {
+      console.error(err);
+
+      return res.status(500).json({
+        message: err.message,
+      });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(400).json({
+        message:
+          "Booking cannot be cancelled. It may not belong to you, may already be cancelled, or may have already started.",
+      });
+    }
+
+    res.json({
+      message: "Booking cancelled successfully.",
+    });
+  });
+};

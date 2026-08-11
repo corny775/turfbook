@@ -76,6 +76,7 @@ import { ref, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 import BookingSelection from "@/components/BookingSelection.vue";
 import BookingConfirmation from "@/components/BookingConfirmation.vue";
 import api from '@/services/api';
@@ -95,6 +96,7 @@ interface Booking {
 
 const route = useRoute();
 const $q = useQuasar();
+const auth = useAuthStore();
 const facilityId = route.params.id as string;
 
 const facility = ref<Facility | null>(null);
@@ -229,7 +231,7 @@ async function confirmBooking() {
 
     // Create booking
     await api.post("/bookings", {
-      user_id: 1,
+      user_id: auth.user?.id,
       facility_id: Number(facilityId),
       booking_date: selectedDate.value,
       start_time: `${slot}:00`,

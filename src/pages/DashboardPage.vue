@@ -3,8 +3,8 @@
 
     <div class="hero q-pa-xl q-mb-lg">
       <div class="text-h3 text-weight-bold text-white">
-        Welcome back 👋
-      </div>
+  Welcome back, {{ auth.user?.username }} 👋
+</div>
       <div class="text-subtitle1 text-white hero-subtitle">
         Here's a quick look at what's happening with your bookings.
       </div>
@@ -123,6 +123,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '@/services/api';
+import { useAuthStore } from '@/stores/auth';
 
 interface Facility {
   id: number;
@@ -143,6 +144,7 @@ interface Booking {
 }
 
 const router = useRouter();
+const auth = useAuthStore();
 const loading = ref(true);
 const facilityCount = ref(0);
 const myBookings = ref<Booking[]>([]);
@@ -162,7 +164,7 @@ async function loadDashboard() {
   try {
     const [facilitiesRes, bookingsRes] = await Promise.all([
       api.get<Facility[]>('/facilities'),
-      api.get<Booking[]>('/bookings/user/1'),
+      api.get<Booking[]>(`/bookings/user/${auth.user?.id}`)
     ]);
 
     facilityCount.value = facilitiesRes.data.length;

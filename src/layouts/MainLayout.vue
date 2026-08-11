@@ -77,6 +77,16 @@
       </q-item-section>
     </q-item>
 
+    <q-item clickable v-ripple to="/how-it-works" exact>
+  <q-item-section avatar>
+    <q-icon name="help_outline" />
+  </q-item-section>
+
+  <q-item-section>
+    How It Works
+  </q-item-section>
+</q-item>
+
   </template>
 
 

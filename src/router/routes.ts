@@ -22,7 +22,14 @@ const routes: RouteRecordRaw[] = [
         path: 'history',
         component: () => import('@/pages/BookingHistoryPage.vue'),
       },
-
+{ 
+  path: '/how-it-works', 
+  component: () => import('@/pages/HowItWorksPage.vue'),
+    meta: { 
+      requiresAuth: true,
+      role: 'customer'
+     },
+   },
       {
   path: "pricing-rules",
   component: () => import("@/pages/PricingRulesPage.vue"),

@@ -98,6 +98,7 @@ import { ref, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import axios from 'axios';
 import api from '@/services/api';
+import { useAuthStore } from '@/stores/auth';
 
 interface Booking {
   id: number;
@@ -112,6 +113,7 @@ interface Booking {
 const bookings = ref<Booking[]>([]);
 const loading = ref(false);
 const $q = useQuasar();
+const auth = useAuthStore();
 
 function statusColor(status: string) {
   switch (status?.toLowerCase()) {
@@ -154,7 +156,9 @@ async function loadBookings() {
   loading.value = true;
 
   try {
-    const response = await api.get("/bookings/user/1");
+    const response = await api.get(
+  `/bookings/user/${auth.user?.id}`
+);
     bookings.value = response.data;
 
   } catch (err: unknown) {

@@ -8,6 +8,11 @@ router.get(
   bookingController.getUserBookings
 );
 
+router.patch(
+  "/:id/cancel",
+  bookingController.cancelBooking
+);
+
 router.get(
   "/:facilityId/:date",
   bookingController.getBookingsByDate

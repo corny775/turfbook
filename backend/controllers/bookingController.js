@@ -171,7 +171,7 @@ exports.calculateBookingPrice = async (req, res) => {
     facilityId,
     date,
     startTime,
-    duration,
+    quantity,
   } = req.body;
 
   try {
@@ -179,7 +179,7 @@ exports.calculateBookingPrice = async (req, res) => {
       facilityId,
       date,
       startTime,
-      duration
+      quantity
     );
 
     res.json(result);

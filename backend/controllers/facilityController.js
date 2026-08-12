@@ -1,24 +1,32 @@
 const db = require("../config/db");
 
-// GET all facilities
-exports.getFacilities = (req, res) => {
-  const sql = `
-    SELECT
-      f.id,
-      f.category_id,
-      f.name,
-      f.type,
-      f.description,
-      f.base_rate,
-      f.pricing_unit,
-      c.name AS category_name
-    FROM facilities f
-    JOIN categories c
-      ON f.category_id = c.id
-    ORDER BY f.category_id ASC, f.id ASC
-  `;
 
-  db.query(sql, (err, results) => {
+// ============================================================
+// GET ALL FACILITIES
+// Customer → sees all facilities
+// Admin    → sees only facilities in their category
+// ============================================================
+
+exports.getFacilities = (req, res) => {
+  let sql;
+  let params = [];
+
+  if (req.user.role === "admin") {
+    sql = `
+      SELECT *
+      FROM facilities
+      WHERE category_id = ?
+    `;
+
+    params = [req.user.categoryId];
+  } else {
+    sql = `
+      SELECT *
+      FROM facilities
+    `;
+  }
+
+  db.query(sql, params, (err, results) => {
     if (err) {
       console.error(err);
 
@@ -32,27 +40,38 @@ exports.getFacilities = (req, res) => {
 };
 
 
-// GET facility by ID
+// ============================================================
+// GET SINGLE FACILITY
+// Customer → can view any facility
+// Admin    → can only view their category
+// ============================================================
+
 exports.getFacilityById = (req, res) => {
   const { id } = req.params;
 
-  const sql = `
-    SELECT
-      f.id,
-      f.category_id,
-      f.name,
-      f.type,
-      f.description,
-      f.base_rate,
-      f.pricing_unit,
-      c.name AS category_name
-    FROM facilities f
-    JOIN categories c
-      ON f.category_id = c.id
-    WHERE f.id = ?
-  `;
+  let sql;
+  let params;
 
-  db.query(sql, [id], (err, results) => {
+  if (req.user.role === "admin") {
+    sql = `
+      SELECT *
+      FROM facilities
+      WHERE id = ?
+        AND category_id = ?
+    `;
+
+    params = [id, req.user.categoryId];
+  } else {
+    sql = `
+      SELECT *
+      FROM facilities
+      WHERE id = ?
+    `;
+
+    params = [id];
+  }
+
+  db.query(sql, params, (err, results) => {
     if (err) {
       console.error(err);
 
@@ -72,142 +91,134 @@ exports.getFacilityById = (req, res) => {
 };
 
 
-// CREATE facility
+// ============================================================
+// CREATE FACILITY
+// Admin only
+// Facility automatically belongs to admin's category
+// ============================================================
+
 exports.createFacility = (req, res) => {
   const {
-    category_id,
     name,
     type,
-    description,
     base_rate,
-    pricing_unit,
+    slot_duration,
   } = req.body;
 
-  if (
-    !category_id ||
-    !name ||
-    !type ||
-    base_rate === undefined ||
-    !pricing_unit
-  ) {
-    return res.status(400).json({
-      message:
-        "Category, name, type, base rate and pricing unit are required",
-    });
-  }
-
-  // Make sure the category exists
-  const categorySql = `
-    SELECT id
-    FROM categories
-    WHERE id = ?
-  `;
-
-  db.query(categorySql, [category_id], (categoryErr, categories) => {
-    if (categoryErr) {
-      console.error(categoryErr);
-
-      return res.status(500).json({
-        message: "Database error",
-      });
-    }
-
-    if (categories.length === 0) {
-      return res.status(400).json({
-        message: "Invalid category",
-      });
-    }
-
-    const sql = `
-      INSERT INTO facilities
-      (
-        category_id,
-        name,
-        type,
-        description,
-        base_rate,
-        pricing_unit
-      )
-      VALUES (?, ?, ?, ?, ?, ?)
-    `;
-
-    db.query(
-      sql,
-      [
-        category_id,
-        name,
-        type,
-        description || null,
-        base_rate,
-        pricing_unit,
-      ],
-      (err, result) => {
-        if (err) {
-          console.error(err);
-
-          return res.status(500).json({
-            message: err.message,
-          });
-        }
-
-        res.status(201).json({
-          message: "Facility created successfully",
-          id: result.insertId,
-        });
-      }
-    );
-  });
-};
-
-
-// UPDATE facility
-exports.updateFacility = (req, res) => {
-  const { id } = req.params;
-
-  const {
-    category_id,
-    name,
-    type,
-    description,
-    base_rate,
-    pricing_unit,
-  } = req.body;
-
-  if (
-    !category_id ||
-    !name ||
-    !type ||
-    base_rate === undefined ||
-    !pricing_unit
-  ) {
-    return res.status(400).json({
-      message:
-        "Category, name, type, base rate and pricing unit are required",
-    });
-  }
+  const categoryId = req.user.categoryId;
 
   const sql = `
-    UPDATE facilities
-    SET
-      category_id = ?,
-      name = ?,
-      type = ?,
-      description = ?,
-      base_rate = ?,
-      pricing_unit = ?
-    WHERE id = ?
+    INSERT INTO facilities
+    (
+      category_id,
+      name,
+      type,
+      base_rate,
+      slot_duration
+    )
+    VALUES (?, ?, ?, ?, ?)
   `;
 
   db.query(
     sql,
     [
-      category_id,
+      categoryId,
       name,
       type,
-      description || null,
       base_rate,
-      pricing_unit,
+      slot_duration,
+    ],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+
+        return res.status(500).json({
+          message: err.message,
+        });
+      }
+
+      const facilityId = result.insertId;
+
+      // Default pricing rules
+      const pricingSql = `
+        INSERT INTO pricing_rules
+        (
+          facility_id,
+          rule_type,
+          value
+        )
+        VALUES
+          (?, 'peak', 1.00),
+          (?, 'weekend', 1.00),
+          (?, 'discount', 0),
+          (?, 'tax', 18)
+      `;
+
+      db.query(
+        pricingSql,
+        [
+          facilityId,
+          facilityId,
+          facilityId,
+          facilityId,
+        ],
+        (pricingErr) => {
+          if (pricingErr) {
+            console.error(pricingErr);
+
+            return res.status(500).json({
+              message:
+                "Facility created, but default pricing rules could not be created.",
+            });
+          }
+
+          res.status(201).json({
+            message: "Facility created successfully",
+            id: facilityId,
+            categoryId,
+          });
+        }
+      );
+    }
+  );
+};
+
+
+// ============================================================
+// UPDATE FACILITY
+// Admin can only update their category
+// ============================================================
+
+exports.updateFacility = (req, res) => {
+  const { id } = req.params;
+
+  const {
+    name,
+    type,
+    base_rate,
+    slot_duration,
+  } = req.body;
+
+  const sql = `
+    UPDATE facilities
+    SET
+      name = ?,
+      type = ?,
+      base_rate = ?,
+      slot_duration = ?
+    WHERE id = ?
+      AND category_id = ?
+  `;
+
+  db.query(
+    sql,
+    [
+      name,
+      type,
+      base_rate,
+      slot_duration,
       id,
+      req.user.categoryId,
     ],
     (err, result) => {
       if (err) {
@@ -220,7 +231,8 @@ exports.updateFacility = (req, res) => {
 
       if (result.affectedRows === 0) {
         return res.status(404).json({
-          message: "Facility not found",
+          message:
+            "Facility not found or does not belong to your category",
         });
       }
 
@@ -232,32 +244,85 @@ exports.updateFacility = (req, res) => {
 };
 
 
-// DELETE facility
+// ============================================================
+// DELETE FACILITY
+// Admin can only delete their category
+// ============================================================
+
 exports.deleteFacility = (req, res) => {
   const { id } = req.params;
 
-  const sql = `
-    DELETE FROM facilities
+  const checkSql = `
+    SELECT id
+    FROM facilities
     WHERE id = ?
+      AND category_id = ?
   `;
 
-  db.query(sql, [id], (err, result) => {
-    if (err) {
-      console.error(err);
+  db.query(
+    checkSql,
+    [id, req.user.categoryId],
+    (checkErr, results) => {
+      if (checkErr) {
+        console.error(checkErr);
 
-      return res.status(500).json({
-        message: err.message,
-      });
+        return res.status(500).json({
+          message: checkErr.message,
+        });
+      }
+
+      if (results.length === 0) {
+        return res.status(404).json({
+          message:
+            "Facility not found or does not belong to your category",
+        });
+      }
+
+      const deletePricingSql = `
+        DELETE FROM pricing_rules
+        WHERE facility_id = ?
+      `;
+
+      db.query(
+        deletePricingSql,
+        [id],
+        (pricingErr) => {
+          if (pricingErr) {
+            console.error(pricingErr);
+
+            return res.status(500).json({
+              message: pricingErr.message,
+            });
+          }
+
+          const deleteFacilitySql = `
+            DELETE FROM facilities
+            WHERE id = ?
+              AND category_id = ?
+          `;
+
+          db.query(
+            deleteFacilitySql,
+            [
+              id,
+              req.user.categoryId,
+            ],
+            (facilityErr) => {
+              if (facilityErr) {
+                console.error(facilityErr);
+
+                return res.status(500).json({
+                  message: facilityErr.message,
+                });
+              }
+
+              res.json({
+                message: "Facility deleted successfully",
+              });
+            }
+          );
+        }
+      );
     }
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        message: "Facility not found",
-      });
-    }
-
-    res.json({
-      message: "Facility deleted successfully",
-    });
-  });
+  );
 };

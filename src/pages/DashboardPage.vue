@@ -1,71 +1,146 @@
 <template>
   <q-page class="q-pa-md dashboard-page">
 
+    <!-- Welcome -->
     <div class="hero q-pa-xl q-mb-lg">
       <div class="text-h3 text-weight-bold text-white">
-  Welcome back, {{ auth.user?.username }} 👋
-</div>
+        Welcome back, {{ auth.user?.username }} 👋
+      </div>
+
       <div class="text-subtitle1 text-white hero-subtitle">
-        Here's a quick look at what's happening with your bookings.
+        Explore and book facilities across First Steps.
       </div>
     </div>
 
-    <div class="row q-col-gutter-md q-mb-lg">
+
+    <!-- Statistics -->
+    <div class="row q-col-gutter-md q-mb-xl">
 
       <div class="col-12 col-sm-6 col-md-3">
         <q-card flat bordered class="stat-card">
           <q-card-section class="row items-center no-wrap">
-            <q-avatar color="primary" text-color="white" icon="domain" size="46px" class="q-mr-md" />
+            <q-avatar
+              color="primary"
+              text-color="white"
+              icon="domain"
+              size="46px"
+              class="q-mr-md"
+            />
+
             <div>
-              <div class="text-caption text-grey-6">Facilities</div>
+              <div class="text-caption text-grey-6">
+                Facilities
+              </div>
+
               <div class="text-h5 text-weight-bold">
-                <q-skeleton v-if="loading" type="text" width="30px" />
-                <template v-else>{{ facilityCount }}</template>
+                <q-skeleton
+                  v-if="loading"
+                  type="text"
+                  width="30px"
+                />
+
+                <template v-else>
+                  {{ facilityCount }}
+                </template>
               </div>
             </div>
           </q-card-section>
         </q-card>
       </div>
 
+
       <div class="col-12 col-sm-6 col-md-3">
         <q-card flat bordered class="stat-card">
           <q-card-section class="row items-center no-wrap">
-            <q-avatar color="green-6" text-color="white" icon="event" size="46px" class="q-mr-md" />
+            <q-avatar
+              color="green-6"
+              text-color="white"
+              icon="event"
+              size="46px"
+              class="q-mr-md"
+            />
+
             <div>
-              <div class="text-caption text-grey-6">Past Bookings</div>
+              <div class="text-caption text-grey-6">
+                Past Bookings
+              </div>
+
               <div class="text-h5 text-weight-bold">
-                <q-skeleton v-if="loading" type="text" width="30px" />
-                <template v-else>{{ myBookings.length - upcomingCount }}</template>
+                <q-skeleton
+                  v-if="loading"
+                  type="text"
+                  width="30px"
+                />
+
+                <template v-else>
+                  {{ myBookings.length - upcomingCount }}
+                </template>
               </div>
             </div>
           </q-card-section>
         </q-card>
       </div>
 
+
       <div class="col-12 col-sm-6 col-md-3">
         <q-card flat bordered class="stat-card">
           <q-card-section class="row items-center no-wrap">
-            <q-avatar color="teal-6" text-color="white" icon="event_upcoming" size="46px" class="q-mr-md" />
+            <q-avatar
+              color="teal-6"
+              text-color="white"
+              icon="event_upcoming"
+              size="46px"
+              class="q-mr-md"
+            />
+
             <div>
-              <div class="text-caption text-grey-6">Current bookings</div>
+              <div class="text-caption text-grey-6">
+                Current Bookings
+              </div>
+
               <div class="text-h5 text-weight-bold">
-                <q-skeleton v-if="loading" type="text" width="30px" />
-                <template v-else>{{ upcomingCount }}</template>
+                <q-skeleton
+                  v-if="loading"
+                  type="text"
+                  width="30px"
+                />
+
+                <template v-else>
+                  {{ upcomingCount }}
+                </template>
               </div>
             </div>
           </q-card-section>
         </q-card>
       </div>
 
+
       <div class="col-12 col-sm-6 col-md-3">
         <q-card flat bordered class="stat-card">
           <q-card-section class="row items-center no-wrap">
-            <q-avatar color="lime-8" text-color="white" icon="payments" size="46px" class="q-mr-md" />
+            <q-avatar
+              color="lime-8"
+              text-color="white"
+              icon="payments"
+              size="46px"
+              class="q-mr-md"
+            />
+
             <div>
-              <div class="text-caption text-grey-6">Total Spent</div>
+              <div class="text-caption text-grey-6">
+                Total Spent
+              </div>
+
               <div class="text-h5 text-weight-bold">
-                <q-skeleton v-if="loading" type="text" width="60px" />
-                <template v-else>₹{{ totalSpent.toFixed(0) }}</template>
+                <q-skeleton
+                  v-if="loading"
+                  type="text"
+                  width="60px"
+                />
+
+                <template v-else>
+                  ₹{{ totalSpent.toFixed(0) }}
+                </template>
               </div>
             </div>
           </q-card-section>
@@ -74,6 +149,94 @@
 
     </div>
 
+
+    <!-- Facility Categories -->
+    <div class="q-mb-xl">
+
+      <div class="text-h5 text-weight-bold q-mb-sm">
+        Explore Facilities
+      </div>
+
+      <div class="text-body2 text-grey-7 q-mb-md">
+        Choose a category to explore the facilities available to you.
+      </div>
+
+      <!-- Loading categories -->
+<div
+  v-if="loading && categories.length === 0"
+  class="column q-gutter-sm"
+>
+  <q-card
+    v-for="n in 9"
+    :key="n"
+    flat
+    bordered
+  >
+    <q-card-section>
+      <q-skeleton type="text" width="35%" />
+      <q-skeleton type="text" width="55%" />
+    </q-card-section>
+  </q-card>
+</div>
+
+<!-- Categories -->
+<q-list
+  v-else-if="categories.length > 0"
+  bordered
+  separator
+  class="category-list rounded-borders"
+>
+  <q-expansion-item
+    v-for="category in categories"
+    :key="category.id"
+    :icon="category.icon"
+    :label="category.name"
+    :caption="category.description"
+    header-class="category-header"
+  >
+    <q-card flat>
+      <q-card-section>
+
+        <div class="text-body2 text-grey-7 q-mb-md">
+          {{ category.description }}
+        </div>
+
+        <q-btn
+          color="primary"
+          label="View Facilities"
+          icon="arrow_forward"
+          @click="browseCategory(category.id)"
+        />
+
+      </q-card-section>
+    </q-card>
+  </q-expansion-item>
+</q-list>
+
+<!-- No categories -->
+<div
+  v-else
+  class="column items-center q-pa-xl text-grey-6"
+>
+  <q-icon
+    name="category"
+    size="56px"
+    class="q-mb-md"
+  />
+
+  <div class="text-h6">
+    No facility categories available
+  </div>
+
+  <div class="text-body2">
+    Please check back later.
+  </div>
+</div>
+
+    </div>
+
+
+    <!-- Quick Actions -->
     <div class="row q-col-gutter-md">
 
       <div class="col-12 col-md-6">
@@ -84,16 +247,33 @@
           @click="router.push('/facilities')"
         >
           <q-card-section class="row items-center no-wrap">
-            <q-icon name="search" size="36px" color="primary" class="q-mr-md" />
+            <q-icon
+              name="search"
+              size="36px"
+              color="primary"
+              class="q-mr-md"
+            />
+
             <div>
-              <div class="text-h6 text-weight-bold">Browse Facilities</div>
-              <div class="text-body2 text-grey-7">Find and book a slot for your favorite facility</div>
+              <div class="text-h6 text-weight-bold">
+                Browse All Facilities
+              </div>
+
+              <div class="text-body2 text-grey-7">
+                Explore every facility available on First Steps
+              </div>
             </div>
+
             <q-space />
-            <q-icon name="arrow_forward" color="grey-6" />
+
+            <q-icon
+              name="arrow_forward"
+              color="grey-6"
+            />
           </q-card-section>
         </q-card>
       </div>
+
 
       <div class="col-12 col-md-6">
         <q-card
@@ -103,13 +283,29 @@
           @click="router.push('/history')"
         >
           <q-card-section class="row items-center no-wrap">
-            <q-icon name="history" size="36px" color="primary" class="q-mr-md" />
+            <q-icon
+              name="history"
+              size="36px"
+              color="primary"
+              class="q-mr-md"
+            />
+
             <div>
-              <div class="text-h6 text-weight-bold">View Booking History</div>
-              <div class="text-body2 text-grey-7">See all your past and upcoming bookings</div>
+              <div class="text-h6 text-weight-bold">
+                View Booking History
+              </div>
+
+              <div class="text-body2 text-grey-7">
+                See all your past and upcoming bookings
+              </div>
             </div>
+
             <q-space />
-            <q-icon name="arrow_forward" color="grey-6" />
+
+            <q-icon
+              name="arrow_forward"
+              color="grey-6"
+            />
           </q-card-section>
         </q-card>
       </div>
@@ -143,11 +339,19 @@ interface Booking {
   status: string;
 }
 
+interface Category {
+  id: number;
+  name: string;
+  description: string;
+  icon: string;
+}
+
 const router = useRouter();
 const auth = useAuthStore();
 const loading = ref(true);
 const facilityCount = ref(0);
 const myBookings = ref<Booking[]>([]);
+const categories = ref<Category[]>([]);
 
 const upcomingCount = computed(() => {
   const today = new Date().toISOString().substring(0, 10);
@@ -162,18 +366,29 @@ async function loadDashboard() {
   loading.value = true;
 
   try {
-    const [facilitiesRes, bookingsRes] = await Promise.all([
-      api.get<Facility[]>('/facilities'),
-      api.get<Booking[]>(`/bookings/user/${auth.user?.id}`)
-    ]);
+    const [facilitiesRes, bookingsRes, categoriesRes] = await Promise.all([
+  api.get<Facility[]>('/facilities'),
+  api.get<Booking[]>(`/bookings/user/${auth.user?.id}`),
+  api.get<Category[]>('/categories')
+]);
 
     facilityCount.value = facilitiesRes.data.length;
     myBookings.value = bookingsRes.data;
+    categories.value = categoriesRes.data;
   } catch (err) {
     console.error(err);
   } finally {
     loading.value = false;
   }
+}
+
+function browseCategory(categoryId: number) {
+  router.push({
+    path: '/facilities',
+    query: {
+      category: String(categoryId),
+    },
+  });
 }
 
 onMounted(() => {
@@ -208,5 +423,18 @@ onMounted(() => {
 .action-card:hover {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
+}
+
+.category-list {
+  overflow: hidden;
+}
+
+.category-header {
+  min-height: 72px;
+  font-weight: 600;
+}
+
+.category-header:hover {
+  background: rgba(0, 0, 0, 0.02);
 }
 </style>

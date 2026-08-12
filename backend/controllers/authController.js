@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const db = require("../config/db");
 
 exports.login = (req, res) => {
@@ -44,12 +45,26 @@ exports.login = (req, res) => {
         });
       }
 
-      return res.json({
-        id: user.id,
-        username: user.username,
-        role: user.role,
-        categoryId: user.category_id,
-      });
+      const token = jwt.sign(
+  {
+    id: user.id,
+    username: user.username,
+    role: user.role,
+    categoryId: user.category_id,
+  },
+  process.env.JWT_SECRET,
+  {
+    expiresIn: "2h",
+  }
+);
+
+return res.json({
+  token,
+  id: user.id,
+  username: user.username,
+  role: user.role,
+  categoryId: user.category_id,
+});
     });
   });
 };

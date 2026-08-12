@@ -17,18 +17,34 @@ export const useAuthStore = defineStore('auth', {
     isLoggedIn: (state) => state.user !== null,
     isAdmin: (state) => state.user?.role === 'admin',
     isCustomer: (state) => state.user?.role === 'customer',
-
     categoryId: (state) => state.user?.categoryId ?? null,
   },
 
   actions: {
-    login(user: User) {
-      this.user = user;
+    login(user: User & { token: string }) {
+      this.user = {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        categoryId: user.categoryId,
+      };
+
+      this.token = user.token;
+
+      localStorage.setItem(
+        'auth',
+        JSON.stringify({
+          user: this.user,
+          token: this.token,
+        })
+      );
     },
 
     logout() {
       this.user = null;
       this.token = null;
+
+      localStorage.removeItem('auth');
     },
   },
 });

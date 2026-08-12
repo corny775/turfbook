@@ -3,11 +3,24 @@
 
     <div class="row items-center justify-between q-mb-lg">
       <div>
-        <div class="text-h4 text-weight-bold">Available Facilities</div>
-        <div class="text-subtitle2 text-grey-7">
-          Pick a facility and book your slot in a couple of clicks
-        </div>
+        <div class="text-h4 text-weight-bold">
+  {{ categoryTitle }}
+</div>
+
+<div class="text-subtitle2 text-grey-7">
+  Pick a facility and book your slot in a couple of clicks
+</div>
       </div>
+
+      <q-btn
+  v-if="route.query.category"
+  flat
+  color="primary"
+  icon="apps"
+  label="All Facilities"
+  class="q-mr-sm"
+  @click="router.push('/facilities')"
+/>
 
       <q-input
         v-model="search"
@@ -107,7 +120,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import api from '@/services/api';
 
 interface Facility {
@@ -116,12 +129,14 @@ interface Facility {
   type: string;
   base_rate: string;
   slot_duration: number;
+  category_id: number;
 }
 
 const facilities = ref<Facility[]>([]);
 const loading = ref(false);
 const search = ref('');
 const router = useRouter();
+const route = useRoute();
 const $q = useQuasar();
 
 const bannerPalette = [
@@ -150,13 +165,45 @@ function typeIcon(type: string) {
 }
 
 const filteredFacilities = computed(() => {
-  if (!search.value) return facilities.value;
-  const term = search.value.toLowerCase();
-  return facilities.value.filter(
-    (f) =>
-      f.name.toLowerCase().includes(term) ||
-      f.type.toLowerCase().includes(term)
-  );
+  let result = facilities.value;
+
+  const category = Number(route.query.category);
+
+  if (category) {
+    result = result.filter(
+      (facility) => facility.category_id === category
+    );
+  }
+
+  if (search.value) {
+    const term = search.value.toLowerCase();
+
+    result = result.filter(
+      (facility) =>
+        facility.name.toLowerCase().includes(term) ||
+        facility.type.toLowerCase().includes(term)
+    );
+  }
+
+  return result;
+});
+
+const categoryTitles: Record<number, string> = {
+  1: 'Academic Facilities',
+  2: 'Sports & Fitness Facilities',
+  3: 'Events & Conference Facilities',
+  4: 'Technology & Innovation Facilities',
+  5: 'Food & Dining Facilities',
+  6: 'Accommodation Facilities',
+  7: 'Health & Wellness Facilities',
+  8: 'Recreation & Culture Facilities',
+  9: 'Transport & Infrastructure Facilities',
+};
+
+const categoryTitle = computed(() => {
+  const category = Number(route.query.category);
+
+  return categoryTitles[category] ?? 'Available Facilities';
 });
 
 function bookFacility(id: number) {

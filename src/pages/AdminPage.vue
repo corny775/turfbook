@@ -68,10 +68,16 @@
         </template>
 
         <template v-slot:body-cell-slot_duration="props">
-          <q-td :props="props">
-            {{ props.row.slot_duration }} min
-          </q-td>
-        </template>
+  <q-td :props="props">
+    <span v-if="props.row.pricing_unit === 'hour'">
+      {{ props.row.slot_duration ?? 60 }} min
+    </span>
+
+    <span v-else>
+      /{{ props.row.pricing_unit }}
+    </span>
+  </q-td>
+</template>
 
         <template v-slot:body-cell-actions="props">
 
@@ -167,15 +173,54 @@
               ]"
             />
 
+            <q-select
+  outlined
+  v-model="form.pricing_unit"
+  label="Pricing Unit"
+  :options="[
+    { label: 'Hour', value: 'hour' },
+    { label: 'Day', value: 'day' },
+    { label: 'Night', value: 'night' },
+    { label: 'Event', value: 'event' },
+    { label: 'Person', value: 'person' },
+    { label: 'Session', value: 'session' },
+    { label: 'Item', value: 'item' }
+  ]"
+  emit-value
+  map-options
+  class="q-mb-md"
+  :rules="[
+    val => !!val || 'Pricing unit is required'
+  ]"
+/>
+
             <q-input
-              outlined
-              type="number"
-              v-model="form.slot_duration"
-              label="Slot Duration (minutes)"
-              :rules="[
-                val => Number(val) > 0 || 'Slot duration must be greater than 0'
-              ]"
-            />
+  v-if="['person', 'item'].includes(form.pricing_unit)"
+  outlined
+  type="number"
+  v-model="form.capacity"
+  label="Capacity / Inventory"
+  class="q-mb-md"
+  hint="Used for person and item facilities"
+  :rules="[
+    val =>
+      Number(val) > 0 ||
+      'Capacity must be greater than 0'
+  ]"
+/>
+
+            <q-input
+  v-if="form.pricing_unit === 'hour'"
+  outlined
+  type="number"
+  v-model="form.slot_duration"
+  label="Slot Duration (minutes)"
+  :rules="[
+    val =>
+      Number(val) > 0 ||
+      'Slot duration must be greater than 0'
+  ]"
+/>
 
           </q-card-section>
 
@@ -219,7 +264,9 @@ interface Facility {
   name: string;
   type: string;
   base_rate: number | string;
-  slot_duration: number;
+  pricing_unit: string;
+  slot_duration: number | null;
+  capacity: number | null;
 }
 
 interface FacilityForm {
@@ -227,7 +274,9 @@ interface FacilityForm {
   name: string;
   type: string;
   base_rate: number | string;
-  slot_duration: number;
+  pricing_unit: string;
+  slot_duration: number | null;
+  capacity: number | null;
 }
 
 const facilities = ref<Facility[]>([]);
@@ -283,7 +332,9 @@ const form = ref<FacilityForm>({
   name: '',
   type: '',
   base_rate: 0,
+  pricing_unit: 'hour',
   slot_duration: 60,
+  capacity: null,
 });
 
 function resetForm() {
@@ -292,7 +343,9 @@ function resetForm() {
     name: "",
     type: "",
     base_rate: 0,
+    pricing_unit: "hour",
     slot_duration: 60,
+    capacity: null,
   };
 }
 
@@ -334,7 +387,9 @@ function editFacility(facility: Facility) {
     name: facility.name,
     type: facility.type,
     base_rate: facility.base_rate,
+    pricing_unit: facility.pricing_unit,
     slot_duration: facility.slot_duration,
+    capacity: facility.capacity,
   };
 
   showDialog.value = true;
@@ -347,11 +402,19 @@ async function saveFacility() {
     if (editing.value) {
 
       await api.put(`/facilities/${form.value.id}`, {
-        name: form.value.name,
-        type: form.value.type,
-        base_rate: Number(form.value.base_rate),
-        slot_duration: Number(form.value.slot_duration),
-      });
+  name: form.value.name,
+  type: form.value.type,
+  base_rate: Number(form.value.base_rate),
+  pricing_unit: form.value.pricing_unit,
+  slot_duration:
+    form.value.pricing_unit === "hour"
+      ? Number(form.value.slot_duration)
+      : null,
+  capacity:
+    ["person", "item"].includes(form.value.pricing_unit)
+      ? Number(form.value.capacity)
+      : null,
+});
 
       $q.notify({
         type: "positive",
@@ -361,11 +424,19 @@ async function saveFacility() {
     } else {
 
       await api.post("/facilities", {
-        name: form.value.name,
-        type: form.value.type,
-        base_rate: Number(form.value.base_rate),
-        slot_duration: Number(form.value.slot_duration),
-      });
+  name: form.value.name,
+  type: form.value.type,
+  base_rate: Number(form.value.base_rate),
+  pricing_unit: form.value.pricing_unit,
+  slot_duration:
+    form.value.pricing_unit === "hour"
+      ? Number(form.value.slot_duration)
+      : null,
+  capacity:
+    ["person", "item"].includes(form.value.pricing_unit)
+      ? Number(form.value.capacity)
+      : null,
+});
 
       $q.notify({
         type: "positive",

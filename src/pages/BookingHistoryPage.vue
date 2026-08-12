@@ -74,7 +74,14 @@
 
               <div class="row items-center">
                 <q-icon name="schedule" size="18px" class="q-mr-xs" />
-                {{ formatTime(booking.start_time) }} - {{ formatTime(booking.end_time) }}
+                <template v-if="booking.start_time && booking.end_time">
+  {{ formatTime(booking.start_time) }} -
+  {{ formatTime(booking.end_time) }}
+</template>
+
+<template v-else>
+  {{ getBookingDetail(booking) }}
+</template>
               </div>
             </div>
 
@@ -119,9 +126,12 @@ import { useAuthStore } from '@/stores/auth';
 interface Booking {
   id: number;
   facility_name: string;
+  facility_type: string;
+  pricing_unit: string;
   booking_date: string;
-  start_time: string;
-  end_time: string;
+  start_time: string | null;
+  end_time: string | null;
+  quantity: number;
   amount: string;
   status: string;
 }
@@ -175,13 +185,23 @@ function isUpcoming(booking: Booking) {
   }
 
   const bookingDate = booking.booking_date.substring(0, 10);
-  const startTime = booking.start_time;
 
-  const bookingDateTime = new Date(
-    `${bookingDate}T${startTime}`
-  );
+  // Hour-based booking
+  if (booking.start_time) {
+    const bookingDateTime = new Date(
+      `${bookingDate}T${booking.start_time}`
+    );
 
-  return bookingDateTime > new Date();
+    return bookingDateTime > new Date();
+  }
+
+  // Non-hourly booking
+  // For example: night, person, session, event, etc.
+  // These bookings are considered upcoming if their
+  // booking date has not passed.
+  const bookingDay = new Date(`${bookingDate}T23:59:59`);
+
+  return bookingDay > new Date();
 }
 
 async function loadBookings() {
@@ -262,6 +282,56 @@ async function performCancellation(id: number) {
     cancelLoading.value = null;
   }
 }
+
+function getBookingDetail(booking: Booking) {
+  const unit = booking.pricing_unit;
+
+  switch (unit) {
+    case "hour":
+      if (booking.start_time && booking.end_time) {
+        return `${formatTime(booking.start_time)} – ${formatTime(
+          booking.end_time
+        )}`;
+      }
+
+      return "Time not specified";
+
+    case "day":
+      return `${booking.quantity} ${
+        booking.quantity === 1 ? "Day" : "Days"
+      }`;
+
+    case "night":
+      return `${booking.quantity} ${
+        booking.quantity === 1 ? "Night" : "Nights"
+      }`;
+
+    case "person":
+      return `${booking.quantity} ${
+        booking.quantity === 1 ? "Person" : "People"
+      }`;
+
+    case "session":
+      return `${booking.quantity} ${
+        booking.quantity === 1 ? "Session" : "Sessions"
+      }`;
+
+    case "event":
+      return `${booking.quantity} ${
+        booking.quantity === 1 ? "Event" : "Events"
+      }`;
+
+    case "item":
+      return `${booking.quantity} ${
+        booking.quantity === 1 ? "Item" : "Items"
+      }`;
+
+    default:
+      return `Quantity: ${booking.quantity}`;
+  }
+}
+
+
 
 onMounted(() => {
   void loadBookings();

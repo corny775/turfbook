@@ -92,7 +92,9 @@
               <span class="text-h6 text-weight-bold text-primary">
                 ₹{{ facility.base_rate }}
               </span>
-              <span class="text-caption text-grey-6">/hour</span>
+              <span class="text-caption text-grey-6">
+  /{{ formatPricingUnit(facility.pricing_unit) }}
+</span>
             </div>
           </q-card-section>
 
@@ -128,8 +130,10 @@ interface Facility {
   name: string;
   type: string;
   base_rate: string;
-  slot_duration: number;
+  pricing_unit: string;
+  slot_duration: number | null;
   category_id: number;
+  capacity: number | null;
 }
 
 const facilities = ref<Facility[]>([]);
@@ -187,6 +191,27 @@ const filteredFacilities = computed(() => {
 
   return result;
 });
+
+function formatPricingUnit(unit: string) {
+  switch (unit) {
+    case 'hour':
+      return 'hour';
+    case 'night':
+      return 'night';
+    case 'day':
+      return 'day';
+    case 'event':
+      return 'event';
+    case 'person':
+      return 'person';
+    case 'session':
+      return 'session';
+    case 'item':
+      return 'item';
+    default:
+      return unit;
+  }
+}
 
 const categoryTitles: Record<number, string> = {
   1: 'Academic Facilities',

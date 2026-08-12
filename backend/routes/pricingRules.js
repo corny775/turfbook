@@ -3,8 +3,21 @@ const router = express.Router();
 
 const pricingRuleController = require("../controllers/pricingRuleController");
 
-router.get("/:facilityId", pricingRuleController.getPricingRules);
+const authMiddleware = require("../middleware/authMiddleware");
+const adminMiddleware = require("../middleware/adminMiddleware");
 
-router.put("/:id", pricingRuleController.updatePricingRule);
+router.get(
+  "/:facilityId",
+  authMiddleware,
+  adminMiddleware,
+  pricingRuleController.getPricingRules
+);
+
+router.put(
+  "/:id",
+  authMiddleware,
+  adminMiddleware,
+  pricingRuleController.updatePricingRule
+);
 
 module.exports = router;

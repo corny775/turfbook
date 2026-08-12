@@ -102,7 +102,8 @@ exports.createFacility = (req, res) => {
     name,
     type,
     base_rate,
-    slot_duration,
+    pricing_unit,
+    capacity,
   } = req.body;
 
   const categoryId = req.user.categoryId;
@@ -114,9 +115,10 @@ exports.createFacility = (req, res) => {
       name,
       type,
       base_rate,
-      slot_duration
+      pricing_unit,
+      capacity
     )
-    VALUES (?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
@@ -126,7 +128,8 @@ exports.createFacility = (req, res) => {
       name,
       type,
       base_rate,
-      slot_duration,
+      pricing_unit,
+      capacity,
     ],
     (err, result) => {
       if (err) {
@@ -139,7 +142,6 @@ exports.createFacility = (req, res) => {
 
       const facilityId = result.insertId;
 
-      // Default pricing rules
       const pricingSql = `
         INSERT INTO pricing_rules
         (
@@ -196,7 +198,8 @@ exports.updateFacility = (req, res) => {
     name,
     type,
     base_rate,
-    slot_duration,
+    pricing_unit,
+    capacity,
   } = req.body;
 
   const sql = `
@@ -205,7 +208,8 @@ exports.updateFacility = (req, res) => {
       name = ?,
       type = ?,
       base_rate = ?,
-      slot_duration = ?
+      pricing_unit = ?,
+      capacity = ?
     WHERE id = ?
       AND category_id = ?
   `;
@@ -216,7 +220,8 @@ exports.updateFacility = (req, res) => {
       name,
       type,
       base_rate,
-      slot_duration,
+      pricing_unit,
+      capacity,
       id,
       req.user.categoryId,
     ],

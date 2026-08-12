@@ -36,7 +36,10 @@
             <div class="rate-badge">
               <div class="text-caption text-grey-6">Starting from</div>
               <div class="text-h5 text-weight-bold text-primary">
-                ₹{{ facility.base_rate }}<span class="text-body2 text-grey-7">/hour</span>
+                ₹{{ facility.base_rate }}
+<span class="text-body2 text-grey-7">
+  /{{ pricingUnitLabel }}
+</span>
               </div>
             </div>
           </div>
@@ -44,15 +47,107 @@
       </q-card>
 
       <q-card flat bordered class="q-pa-md">
-        <div class="text-h6 text-weight-bold q-mb-md">Choose a slot</div>
+        <div class="text-h6 text-weight-bold q-mb-md">
+  {{ facility.pricing_unit === "hour"
+    ? "Choose a slot"
+    : "Choose booking details" }}
+</div>
 
         <BookingSelection
-          v-model="selectedDate"
-          :bookings="bookings"
-          :slots="slots"
-          @date-change="loadBookings"
-          @select-slot="void openBookingDialog($event)"
-        />
+  v-if="facility.pricing_unit === 'hour'"
+  v-model="selectedDate"
+  :bookings="bookings"
+  :slots="slots"
+  @date-change="loadBookings"
+  @select-slot="void openBookingDialog($event)"
+/>
+
+<div
+  v-else
+  class="column q-gutter-lg"
+>
+  <q-input
+  v-model="selectedDate"
+  outlined
+  label="Booking Date"
+  type="date"
+  @update:model-value="checkAvailability"
+/>
+
+<div
+  v-if="selectedDate && hasExistingBooking"
+  class="q-mt-md text-negative"
+>
+  <q-icon name="event_busy" class="q-mr-xs" />
+  This facility already has a booking for the selected date.
+</div>
+
+<div
+  v-else-if="selectedDate"
+  class="q-mt-md text-positive"
+>
+  <q-icon name="event_available" class="q-mr-xs" />
+  This facility is available for the selected date.
+</div>
+
+  <div>
+    <div class="text-subtitle1 text-weight-medium q-mb-sm">
+      Number of {{ pricingUnitLabel }}{{ quantity === 1 ? "" : "s" }}
+    </div>
+
+    <div class="row items-center q-gutter-md">
+      <q-btn
+  round
+  outline
+  icon="remove"
+  :disable="quantity <= 1"
+  @click="quantity--; checkAvailability()"
+/>
+
+      <div class="text-h5 text-weight-bold">
+        {{ quantity }}
+      </div>
+
+      <q-btn
+  round
+  outline
+  icon="add"
+  @click="quantity++; checkAvailability()"
+/>
+    </div>
+  </div>
+
+  <div
+  v-if="checkingAvailability"
+  class="text-grey-7"
+>
+  Checking availability...
+</div>
+
+<div
+  v-else-if="hasExistingBooking"
+  class="text-negative text-weight-medium"
+>
+  This facility is unavailable for the selected dates.
+</div>
+
+<div
+  v-else-if="selectedDate"
+  class="text-positive text-weight-medium"
+>
+  This facility is available for the selected dates.
+</div>
+
+  <q-btn
+    color="primary"
+    label="Calculate Price"
+    icon="calculate"
+    :loading="dialogLoading"
+    :disable="!selectedDate || hasExistingBooking"
+    @click="calculateNonHourlyPrice"
+  />
+</div>
+
       </q-card>
 
       <BookingConfirmation
@@ -72,7 +167,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
@@ -87,6 +182,8 @@ interface Facility {
   type: string;
   base_rate: string;
   slot_duration: number;
+  pricing_unit: string;
+  category_id: number;
 }
 
 interface Booking {
@@ -108,6 +205,24 @@ const selectedSlot = ref("");
 const confirmLoading = ref(false);
 const dialogLoading = ref(false);
 const calculatedPrice = ref<number | null>(null);
+const quantity = ref(1);
+const hasExistingBooking = ref(false);
+const checkingAvailability = ref(false);
+
+const pricingUnitLabel = computed(() => {
+  if (!facility.value) return "unit";
+
+  const labels: Record<string, string> = {
+    hour: "hour",
+    event: "event",
+    person: "person",
+    night: "night",
+    session: "session",
+  };
+
+  return labels[facility.value.pricing_unit] ?? facility.value.pricing_unit;
+});
+
 const slots = [
   "06:00",
   "07:00",
@@ -131,6 +246,7 @@ function closeConfirmDialog() {
   confirmDialog.value = false;
   selectedSlot.value = "";
   calculatedPrice.value = null;
+  quantity.value = 1;
 }
 
 async function loadFacility() {
@@ -160,12 +276,12 @@ async function loadBookings() {
       `/bookings/${facilityId}/${selectedDate.value}`
     );
 
-    bookings.value = response.data;
+    bookings.value = response.data.bookings ?? [];
 
   } catch (err: unknown) {
     console.error(err);
 
-    let message = "Failed to load bookings.";
+    let message = "Failed to load availability.";
 
     if (axios.isAxiosError(err)) {
       message = err.response?.data?.message ?? message;
@@ -183,11 +299,11 @@ async function loadBookings() {
 async function calculatePrice(slot: string) {
   try {
     const response = await api.post("/bookings/calculate", {
-      facilityId: Number(facilityId),
-      date: selectedDate.value,
-      startTime: slot,
-      duration: 1,
-    });
+  facilityId: Number(facilityId),
+  date: selectedDate.value,
+  startTime: slot,
+  quantity: 1,
+});
 
     calculatedPrice.value = response.data.finalPrice;
   } catch (err) {
@@ -197,6 +313,43 @@ async function calculatePrice(slot: string) {
       type: "negative",
       message: "Failed to calculate booking price.",
     });
+  }
+}
+
+async function calculateNonHourlyPrice() {
+  if (!selectedDate.value) {
+    $q.notify({
+      type: "warning",
+      message: "Please select a booking date first.",
+    });
+
+    return;
+  }
+
+  dialogLoading.value = true;
+
+  try {
+    const response = await api.post("/bookings/calculate", {
+      facilityId: Number(facilityId),
+      date: selectedDate.value,
+      startTime: "00:00",
+      quantity: quantity.value,
+    });
+
+    calculatedPrice.value = response.data.finalPrice;
+
+    selectedSlot.value = "00:00";
+
+    confirmDialog.value = true;
+  } catch (err) {
+    console.error(err);
+
+    $q.notify({
+      type: "negative",
+      message: "Failed to calculate booking price.",
+    });
+  } finally {
+    dialogLoading.value = false;
   }
 }
 
@@ -226,20 +379,30 @@ async function confirmBooking() {
   confirmLoading.value = true;
 
   try {
-    const slot = selectedSlot.value;
-    const endHour = Number(slot.split(":")[0]) + 1;
+    const isHourly = facility.value?.pricing_unit === "hour";
 
-    // Create booking
-    await api.post("/bookings", {
+    const bookingData = {
       user_id: auth.user?.id,
       facility_id: Number(facilityId),
       booking_date: selectedDate.value,
-      start_time: `${slot}:00`,
-      end_time: `${endHour.toString().padStart(2, "0")}:00:00`,
-      amount: calculatedPrice.value,
-    });
+      start_time: isHourly
+        ? `${selectedSlot.value}:00`
+        : null,
+      end_time: isHourly
+        ? `${(
+            Number(selectedSlot.value.split(":")[0]) + 1
+          )
+            .toString()
+            .padStart(2, "0")}:00:00`
+        : null,
+      quantity: quantity.value,
+    };
+
+    await api.post("/bookings", bookingData);
 
     closeConfirmDialog();
+
+    quantity.value = 1;
 
     await loadBookings();
 
@@ -247,7 +410,6 @@ async function confirmBooking() {
       type: "positive",
       message: "Booking successful!",
     });
-
   } catch (err: unknown) {
     console.error(err);
 
@@ -266,9 +428,42 @@ async function confirmBooking() {
   }
 }
 
+async function checkAvailability() {
+  if (!selectedDate.value || !facility.value) {
+    hasExistingBooking.value = false;
+    return;
+  }
+
+  checkingAvailability.value = true;
+
+  try {
+    const response = await api.get("/bookings/availability", {
+      params: {
+        facilityId: Number(facilityId),
+        startDate: selectedDate.value,
+        quantity: quantity.value,
+      },
+    });
+
+    hasExistingBooking.value = !response.data.available;
+  } catch (err) {
+    console.error(err);
+
+    hasExistingBooking.value = false;
+
+    $q.notify({
+      type: "negative",
+      message: "Failed to check availability.",
+    });
+  } finally {
+    checkingAvailability.value = false;
+  }
+}
+
 onMounted(async () => {
   await loadFacility();
 });
+
 </script>
 
 <style scoped>

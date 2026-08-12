@@ -29,6 +29,52 @@
           </template>
         </q-input>
 
+        <q-select
+  outlined
+  v-model="accountType"
+  label="Account Type"
+  :options="[
+    {
+      label: 'Customer',
+      value: 'customer'
+    },
+    {
+      label: 'Administrator',
+      value: 'admin'
+    }
+  ]"
+  emit-value
+  map-options
+  class="q-mb-sm"
+>
+  <template v-slot:prepend>
+    <q-icon name="person_outline" />
+  </template>
+</q-select>
+
+<q-select
+  v-if="accountType === 'admin'"
+  outlined
+  v-model="categoryId"
+  :options="categories"
+  option-label="name"
+  option-value="id"
+  emit-value
+  map-options
+  label="Admin Category"
+  class="q-mb-sm"
+  :rules="[
+    val =>
+      accountType !== 'admin' ||
+      !!val ||
+      'Please select an admin category'
+  ]"
+>
+  <template v-slot:prepend>
+    <q-icon name="category" />
+  </template>
+</q-select>
+
         <q-input
           outlined
           v-model="email"
@@ -120,16 +166,22 @@
         </q-input>
 
         <q-input
-          outlined
-          v-model="adminInviteCode"
-          label="Admin Invite Code (optional)"
-          class="q-mb-sm"
-          hint="Leave blank for a customer account"
-        >
-          <template v-slot:prepend>
-            <q-icon name="admin_panel_settings" />
-          </template>
-        </q-input>
+  v-if="accountType === 'admin'"
+  outlined
+  v-model="adminInviteCode"
+  label="Admin Invite Code"
+  class="q-mb-sm"
+  :rules="[
+    val =>
+      accountType !== 'admin' ||
+      !!val ||
+      'Admin invite code is required'
+  ]"
+>
+  <template v-slot:prepend>
+    <q-icon name="admin_panel_settings" />
+  </template>
+</q-input>
 
         <q-btn
           color="primary"
@@ -157,7 +209,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
@@ -173,11 +225,38 @@ const email = ref('');
 const contactNumber = ref('');
 const password = ref('');
 const confirmPassword = ref('');
+
+const accountType = ref('customer');
+const categoryId = ref<number | null>(null);
 const adminInviteCode = ref('');
 
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
 const loading = ref(false);
+
+const categories = ref<
+  {
+    id: number;
+    name: string;
+    description: string;
+    icon: string;
+  }[]
+>([]);
+
+async function loadCategories() {
+  try {
+    const response = await api.get('/categories');
+
+    categories.value = response.data;
+  } catch (err) {
+    console.error(err);
+
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to load admin categories.',
+    });
+  }
+}
 
 async function signup() {
   if (
@@ -204,17 +283,45 @@ async function signup() {
     return;
   }
 
+  if (accountType.value === 'admin') {
+  if (!categoryId.value) {
+    $q.notify({
+      type: 'warning',
+      message: 'Please select an admin category.',
+    });
+
+    return;
+  }
+
+  if (!adminInviteCode.value.trim()) {
+    $q.notify({
+      type: 'warning',
+      message: 'Please enter the admin invite code.',
+    });
+
+    return;
+  }
+}
+
   loading.value = true;
 
   try {
     const response = await api.post('/auth/signup', {
-      username: username.value.trim(),
-      email: email.value.trim(),
-      contactNumber: contactNumber.value.trim(),
-      password: password.value,
-      adminInviteCode:
-        adminInviteCode.value.trim() || undefined,
-    });
+  username: username.value.trim(),
+  email: email.value.trim(),
+  contactNumber: contactNumber.value.trim(),
+  password: password.value,
+
+  adminInviteCode:
+    accountType.value === 'admin'
+      ? adminInviteCode.value.trim()
+      : undefined,
+
+  categoryId:
+    accountType.value === 'admin'
+      ? categoryId.value
+      : undefined,
+});
 
     auth.login(response.data);
 
@@ -246,6 +353,10 @@ async function signup() {
     loading.value = false;
   }
 }
+
+onMounted(() => {
+  void loadCategories();
+});
 </script>
 
 <style scoped>

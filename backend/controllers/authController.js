@@ -48,10 +48,12 @@ exports.login = (req, res) => {
         id: user.id,
         username: user.username,
         role: user.role,
+        categoryId: user.category_id,
       });
     });
   });
 };
+
 
 exports.signup = (req, res) => {
   const {
@@ -60,6 +62,7 @@ exports.signup = (req, res) => {
     contactNumber,
     password,
     adminInviteCode,
+    categoryId,
   } = req.body;
 
   if (!username || !email || !contactNumber || !password) {
@@ -75,8 +78,11 @@ exports.signup = (req, res) => {
     });
   }
 
-  const checkSql =
-    "SELECT id FROM users WHERE username = ? OR email = ?";
+  const checkSql = `
+    SELECT id
+    FROM users
+    WHERE username = ? OR email = ?
+  `;
 
   db.query(
     checkSql,
@@ -95,68 +101,129 @@ exports.signup = (req, res) => {
           message: "Username or email is already in use",
         });
       }
-      console.log(
-  "ADMIN_INVITE_CODE loaded:",
-  !!process.env.ADMIN_INVITE_CODE
-);
-      let role = "customer";
 
-      if (
-        adminInviteCode &&
-        process.env.ADMIN_INVITE_CODE &&
-        adminInviteCode === process.env.ADMIN_INVITE_CODE
-      ) {
-        role = "admin";
+      // Default account type
+      let role = "customer";
+      let assignedCategoryId = null;
+
+      // --------------------------------------------------
+      // CUSTOMER SIGNUP
+      // --------------------------------------------------
+
+      if (!adminInviteCode) {
+        role = "customer";
+        assignedCategoryId = null;
+
+        return createUser();
       }
 
-      bcrypt.hash(password, 10, (hashErr, hashedPassword) => {
-        if (hashErr) {
-          console.error(hashErr);
+      // --------------------------------------------------
+      // ADMIN SIGNUP
+      // --------------------------------------------------
 
-          return res.status(500).json({
-            message: "Failed to secure password",
-          });
+      if (!categoryId) {
+        return res.status(400).json({
+          message: "Category is required for admin signup",
+        });
+      }
+
+      const inviteSql = `
+        SELECT category_id
+        FROM category_admin_invites
+        WHERE category_id = ?
+          AND invite_code = ?
+      `;
+
+      db.query(
+        inviteSql,
+        [categoryId, adminInviteCode],
+        (inviteErr, inviteResults) => {
+          if (inviteErr) {
+            console.error(inviteErr);
+
+            return res.status(500).json({
+              message: "Database error",
+            });
+          }
+
+          if (inviteResults.length === 0) {
+            return res.status(403).json({
+              message:
+                "Invalid admin invite code for the selected category",
+            });
+          }
+
+          role = "admin";
+          assignedCategoryId = inviteResults[0].category_id;
+
+          createUser();
         }
+      );
 
-        const insertSql = `
-          INSERT INTO users
-          (username, email, contact_number, password, role)
-          VALUES (?, ?, ?, ?, ?)
-        `;
 
-        db.query(
-          insertSql,
-          [
-            username,
-            email,
-            contactNumber,
-            hashedPassword,
-            role,
-          ],
-          (insertErr, result) => {
-            if (insertErr) {
-              console.error(insertErr);
+      // --------------------------------------------------
+      // CREATE USER
+      // --------------------------------------------------
 
-              if (insertErr.code === "ER_DUP_ENTRY") {
-                return res.status(409).json({
-                  message:
-                    "Username or email is already in use",
+      function createUser() {
+        bcrypt.hash(password, 10, (hashErr, hashedPassword) => {
+          if (hashErr) {
+            console.error(hashErr);
+
+            return res.status(500).json({
+              message: "Failed to secure password",
+            });
+          }
+
+          const insertSql = `
+            INSERT INTO users
+            (
+              username,
+              email,
+              contact_number,
+              password,
+              role,
+              category_id
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+          `;
+
+          db.query(
+            insertSql,
+            [
+              username,
+              email,
+              contactNumber,
+              hashedPassword,
+              role,
+              assignedCategoryId,
+            ],
+            (insertErr, result) => {
+              if (insertErr) {
+                console.error(insertErr);
+
+                if (insertErr.code === "ER_DUP_ENTRY") {
+                  return res.status(409).json({
+                    message:
+                      "Username or email is already in use",
+                  });
+                }
+
+                return res.status(500).json({
+                  message: "Database error",
                 });
               }
 
-              return res.status(500).json({
-                message: "Database error",
+              return res.status(201).json({
+                id: result.insertId,
+                username,
+                role,
+                categoryId: assignedCategoryId,
               });
             }
-
-            return res.status(201).json({
-              id: result.insertId,
-              username,
-              role,
-            });
-          }
-        );
-      });
+          );
+        });
+      }
     }
   );
 };

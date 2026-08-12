@@ -4,6 +4,7 @@ interface User {
   id: number;
   username: string;
   role: 'admin' | 'customer';
+  categoryId: number | null;
 }
 
 export const useAuthStore = defineStore('auth', {
@@ -16,6 +17,8 @@ export const useAuthStore = defineStore('auth', {
     isLoggedIn: (state) => state.user !== null,
     isAdmin: (state) => state.user?.role === 'admin',
     isCustomer: (state) => state.user?.role === 'customer',
+
+    categoryId: (state) => state.user?.categoryId ?? null,
   },
 
   actions: {

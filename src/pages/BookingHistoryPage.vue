@@ -84,6 +84,22 @@
                 ₹{{ booking.amount }}
               </div>
             </div>
+
+<div
+  v-if="isUpcoming(booking)"
+  class="row justify-end q-mt-md"
+>
+  <q-btn
+    outline
+    color="negative"
+    icon="cancel"
+    label="Cancel Booking"
+    :loading="cancelLoading === booking.id"
+    :disable="cancelLoading !== null"
+    @click="cancelBooking(booking.id)"
+  />
+</div>
+
           </q-card-section>
 
         </q-card>
@@ -112,6 +128,7 @@ interface Booking {
 
 const bookings = ref<Booking[]>([]);
 const loading = ref(false);
+const cancelLoading = ref<number | null>(null);
 const $q = useQuasar();
 const auth = useAuthStore();
 
@@ -152,6 +169,21 @@ function formatTime(timeStr: string) {
   return `${displayHour}:${minuteStr} ${suffix}`;
 }
 
+function isUpcoming(booking: Booking) {
+  if (booking.status !== "Booked") {
+    return false;
+  }
+
+  const bookingDate = booking.booking_date.substring(0, 10);
+  const startTime = booking.start_time;
+
+  const bookingDateTime = new Date(
+    `${bookingDate}T${startTime}`
+  );
+
+  return bookingDateTime > new Date();
+}
+
 async function loadBookings() {
   loading.value = true;
 
@@ -178,6 +210,56 @@ async function loadBookings() {
     bookings.value = [];
   } finally {
     loading.value = false;
+  }
+}
+
+async function cancelBooking(id: number) {
+  $q.dialog({
+    title: "Cancel Booking",
+    message: "Are you sure you want to cancel this booking?",
+    persistent: true,
+    ok: {
+      label: "Yes, Cancel",
+      color: "negative",
+    },
+    cancel: {
+      label: "Keep Booking",
+      flat: true,
+    },
+  }).onOk(() => {
+    void performCancellation(id);
+  });
+}
+
+async function performCancellation(id: number) {
+  cancelLoading.value = id;
+
+  try {
+    await api.patch(`/bookings/${id}/cancel`, {
+      user_id: auth.user?.id,
+    });
+
+    await loadBookings();
+
+    $q.notify({
+      type: "positive",
+      message: "Booking cancelled successfully.",
+    });
+  } catch (err: unknown) {
+    console.error(err);
+
+    let message = "Failed to cancel booking.";
+
+    if (axios.isAxiosError(err)) {
+      message = err.response?.data?.message ?? message;
+    }
+
+    $q.notify({
+      type: "negative",
+      message,
+    });
+  } finally {
+    cancelLoading.value = null;
   }
 }
 

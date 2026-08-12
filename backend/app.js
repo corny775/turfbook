@@ -8,6 +8,7 @@ const facilityRoutes = require("./routes/facilities");
 const bookingRoutes = require("./routes/booking");
 const pricingRuleRoutes = require("./routes/pricingRules");
 const adminRoutes = require("./routes/admin");
+const categoryRoutes = require("./routes/categories");
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use("/api/facilities", facilityRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/pricing-rules", pricingRuleRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/categories", categoryRoutes);
 
 app.get('/', (req, res) => {
   res.send('TurfBook Backend is Running!');

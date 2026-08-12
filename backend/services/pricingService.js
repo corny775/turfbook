@@ -81,72 +81,108 @@ async function calculatePrice(
 
           let price = baseRate * requestedQuantity;
 
-          const peakRule = rules.peak;
-          const weekendRule = rules.weekend;
-          const discountRule = rules.discount;
-          const taxRule = rules.tax;
+const subtotal = price;
 
-          /*
-           * Peak Hours
-           * 6 PM - 10 PM
-           *
-           * Peak value is a multiplier.
-           * Example: 1.50 = +50%
-           */
-          if (peakRule && startTime) {
-            const hour = Number(startTime.split(":")[0]);
+const breakdown = [
+  {
+    label: "Base price",
+    type: "base",
+    amount: subtotal,
+  },
+];
 
-            if (hour >= 18 && hour < 22) {
-              price *= Number(peakRule.value);
-            }
-          }
+const peakRule = rules.peak;
+const weekendRule = rules.weekend;
+const discountRule = rules.discount;
+const taxRule = rules.tax;
 
-          /*
-           * Weekend
-           *
-           * Weekend value is also a multiplier.
-           * Example: 1.20 = +20%
-           */
-          if (weekendRule && date) {
-            const day = new Date(date).getDay();
+/*
+ * Peak Hours
+ * 6 PM - 10 PM
+ */
+if (peakRule && startTime) {
+  const hour = Number(startTime.split(":")[0]);
 
-            if (day === 0 || day === 6) {
-              price *= Number(weekendRule.value);
-            }
-          }
+  if (hour >= 18 && hour < 22) {
+    const before = price;
 
-          /*
-           * Discount
-           *
-           * Example: 10 = 10% discount
-           */
-          if (discountRule) {
-            price -=
-              price * (Number(discountRule.value) / 100);
-          }
+    price *= Number(peakRule.value);
 
-          /*
-           * Tax
-           *
-           * Example: 18 = 18% tax
-           */
-          if (taxRule) {
-            price +=
-              price * (Number(taxRule.value) / 100);
-          }
+    breakdown.push({
+      label: "Peak surcharge",
+      type: "surcharge",
+      amount: Number((price - before).toFixed(2)),
+    });
+  }
+}
 
-          resolve({
-            facilityId: facility.id,
-            categoryId,
-            pricingUnit,
-            quantity: requestedQuantity,
-            baseRate,
-            subtotal: Number(
-              (baseRate * requestedQuantity).toFixed(2)
-            ),
-            finalPrice: Number(price.toFixed(2)),
-            rules: Object.values(rules),
-          });
+/*
+ * Weekend
+ */
+if (weekendRule && date) {
+  const day = new Date(date).getDay();
+
+  if (day === 0 || day === 6) {
+    const before = price;
+
+    price *= Number(weekendRule.value);
+
+    breakdown.push({
+      label: "Weekend surcharge",
+      type: "surcharge",
+      amount: Number((price - before).toFixed(2)),
+    });
+  }
+}
+
+/*
+ * Discount
+ */
+if (discountRule) {
+  const before = price;
+
+  price -=
+    price * (Number(discountRule.value) / 100);
+
+  breakdown.push({
+    label: "Discount",
+    type: "discount",
+    amount: Number((price - before).toFixed(2)),
+  });
+}
+
+/*
+ * Tax
+ */
+if (taxRule) {
+  const before = price;
+
+  price +=
+    price * (Number(taxRule.value) / 100);
+
+  breakdown.push({
+    label: "Tax",
+    type: "tax",
+    amount: Number((price - before).toFixed(2)),
+  });
+}
+
+resolve({
+  facilityId: facility.id,
+  categoryId,
+  pricingUnit,
+  quantity: requestedQuantity,
+  baseRate,
+
+  subtotal: Number(subtotal.toFixed(2)),
+
+  finalPrice: Number(price.toFixed(2)),
+
+  breakdown,
+
+  rules: Object.values(rules),
+});
+
         }
       );
     });

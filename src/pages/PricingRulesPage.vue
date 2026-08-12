@@ -72,6 +72,23 @@
           </q-td>
         </template>
 
+        <template v-slot:body-cell-source="props">
+  <q-td :props="props">
+    <q-chip
+      dense
+      square
+      :color="props.row.facility_id === null ? 'blue-1' : 'orange-1'"
+      :text-color="props.row.facility_id === null ? 'blue-9' : 'orange-9'"
+    >
+      {{
+        props.row.facility_id === null
+          ? "Category Default"
+          : "Facility Override"
+      }}
+    </q-chip>
+  </q-td>
+</template>
+
         <template v-slot:body-cell-value="props">
           <q-td :props="props" class="text-weight-medium">
             {{ formatValue(props.row.value) }}
@@ -174,7 +191,8 @@ interface Facility {
 
 interface Rule {
   id: number;
-  facility_id: number;
+  category_id: number;
+  facility_id: number | null;
   rule_type: string;
   value: string;
 }
@@ -191,7 +209,8 @@ const showDialog = ref(false);
 
 const emptyRule: Rule = {
   id: 0,
-  facility_id: 0,
+  category_id: 0,
+  facility_id: null,
   rule_type: "",
   value: "",
 };
@@ -203,6 +222,12 @@ const columns: QTableColumn<Rule>[] = [
     name: "rule_type",
     label: "Rule",
     field: "rule_type",
+    align: "left",
+  },
+  {
+    name: "source",
+    label: "Type",
+    field: "facility_id",
     align: "left",
   },
   {

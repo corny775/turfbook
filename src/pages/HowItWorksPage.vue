@@ -4,39 +4,223 @@
     <!-- Header -->
     <div class="text-center q-mb-xl">
       <div class="text-h3 text-weight-bold text-primary">
-        How TurfBook Works
+        How FirstSteps Works
       </div>
 
       <div class="text-subtitle1 text-grey-7 q-mt-sm">
-        Everything you need to know about booking facilities and understanding
-        your final price.
+        Discover facilities, understand pricing, and make bookings
+        across the different services available on campus.
       </div>
     </div>
 
-    <!-- What is TurfBook -->
+    <!-- What is FirstSteps -->
     <q-card flat bordered class="info-card q-mb-lg">
       <q-card-section>
         <div class="row items-center q-mb-md">
           <q-avatar
             color="primary"
             text-color="white"
-            icon="sports"
+            icon="apps"
             size="48px"
             class="q-mr-md"
           />
 
           <div class="text-h5 text-weight-bold">
-            What is TurfBook?
+            What is FirstSteps?
           </div>
         </div>
 
         <div class="text-body1 text-grey-8">
-          TurfBook makes it easy to discover sports facilities, check
-          availability, understand pricing, and book your preferred time slot.
+          FirstSteps is a unified campus facility booking platform.
+          Instead of managing different types of facilities separately,
+          FirstSteps brings academic, sports, events, technology, dining,
+          accommodation, wellness, recreation, and infrastructure services
+          into one system.
         </div>
       </q-card-section>
     </q-card>
 
+    <!-- Categories -->
+    <q-card flat bordered class="info-card q-mb-lg">
+      <q-card-section>
+        <div class="text-h5 text-weight-bold q-mb-md">
+          What Can You Book?
+        </div>
+
+        <div class="text-body1 text-grey-7 q-mb-lg">
+          FirstSteps organizes facilities into nine categories so you can
+          quickly find the type of service you need.
+        </div>
+
+        <div class="row q-col-gutter-md">
+
+          <div class="col-12 col-sm-6 col-md-4">
+            <q-item bordered class="category-card rounded-borders">
+              <q-item-section avatar>
+                <q-avatar color="primary" text-color="white" icon="school" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="text-weight-bold">
+                  Academic
+                </q-item-label>
+                <q-item-label caption>
+                  Classrooms, laboratories and libraries
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4">
+            <q-item bordered class="category-card rounded-borders">
+              <q-item-section avatar>
+                <q-avatar
+                  color="primary"
+                  text-color="white"
+                  icon="fitness_center"
+                />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="text-weight-bold">
+                  Sports & Fitness
+                </q-item-label>
+                <q-item-label caption>
+                  Sports turfs, gym and swimming pool
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4">
+            <q-item bordered class="category-card rounded-borders">
+              <q-item-section avatar>
+                <q-avatar color="primary" text-color="white" icon="event" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="text-weight-bold">
+                  Events & Conference
+                </q-item-label>
+                <q-item-label caption>
+                  Auditoriums, conference halls and seminar halls
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4">
+            <q-item bordered class="category-card rounded-borders">
+              <q-item-section avatar>
+                <q-avatar
+                  color="primary"
+                  text-color="white"
+                  icon="computer"
+                />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="text-weight-bold">
+                  Technology & Innovation
+                </q-item-label>
+                <q-item-label caption>
+                  Computer labs, innovation centres and maker spaces
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4">
+            <q-item bordered class="category-card rounded-borders">
+              <q-item-section avatar>
+                <q-avatar
+                  color="primary"
+                  text-color="white"
+                  icon="restaurant"
+                />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="text-weight-bold">
+                  Food & Dining
+                </q-item-label>
+                <q-item-label caption>
+                  Cafeterias, canteens and food courts
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4">
+            <q-item bordered class="category-card rounded-borders">
+              <q-item-section avatar>
+                <q-avatar color="primary" text-color="white" icon="hotel" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="text-weight-bold">
+                  Accommodation
+                </q-item-label>
+                <q-item-label caption>
+                  Hostels, dormitories and guest houses
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4">
+            <q-item bordered class="category-card rounded-borders">
+              <q-item-section avatar>
+                <q-avatar
+                  color="primary"
+                  text-color="white"
+                  icon="health_and_safety"
+                />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="text-weight-bold">
+                  Health & Wellness
+                </q-item-label>
+                <q-item-label caption>
+                  Medical centres, counselling and first-aid facilities
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4">
+            <q-item bordered class="category-card rounded-borders">
+              <q-item-section avatar>
+                <q-avatar color="primary" text-color="white" icon="palette" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="text-weight-bold">
+                  Recreation & Culture
+                </q-item-label>
+                <q-item-label caption>
+                  Student clubs, music rooms, art spaces and recreation areas
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </div>
+
+          <div class="col-12 col-sm-6 col-md-4">
+            <q-item bordered class="category-card rounded-borders">
+              <q-item-section avatar>
+                <q-avatar
+                  color="primary"
+                  text-color="white"
+                  icon="directions_bus"
+                />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="text-weight-bold">
+                  Transport & Infrastructure
+                </q-item-label>
+                <q-item-label caption>
+                  Parking, campus buses, EV charging and utilities
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </div>
+
+        </div>
+      </q-card-section>
+    </q-card>
 
     <!-- Booking Process -->
     <q-card flat bordered class="info-card q-mb-lg">
@@ -47,27 +231,49 @@
 
         <div class="row q-col-gutter-lg">
 
+          <!-- Step 1 -->
           <div class="col-12 col-sm-6 col-md-3">
             <div class="step-card text-center">
               <q-avatar
                 color="primary"
                 text-color="white"
                 size="56px"
-                icon="sports_soccer"
+                icon="category"
               />
 
               <div class="text-subtitle1 text-weight-bold q-mt-md">
-                1. Choose a Facility
+                1. Choose a Category
               </div>
 
               <div class="text-body2 text-grey-7 q-mt-sm">
-                Browse the available sports facilities and select the one
-                you want to book.
+                Start by selecting the category that contains the service
+                or facility you need.
               </div>
             </div>
           </div>
 
+          <!-- Step 2 -->
+          <div class="col-12 col-sm-6 col-md-3">
+            <div class="step-card text-center">
+              <q-avatar
+                color="primary"
+                text-color="white"
+                size="56px"
+                icon="business"
+              />
 
+              <div class="text-subtitle1 text-weight-bold q-mt-md">
+                2. Choose a Facility
+              </div>
+
+              <div class="text-body2 text-grey-7 q-mt-sm">
+                Browse the facilities available inside that category and
+                select the one you want to use.
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
           <div class="col-12 col-sm-6 col-md-3">
             <div class="step-card text-center">
               <q-avatar
@@ -78,37 +284,17 @@
               />
 
               <div class="text-subtitle1 text-weight-bold q-mt-md">
-                2. Select Date & Time
+                3. Select Booking Details
               </div>
 
               <div class="text-body2 text-grey-7 q-mt-sm">
-                Choose your preferred date and an available time slot.
+                Select the date, time, duration, quantity, or other details
+                required by the facility.
               </div>
             </div>
           </div>
 
-
-          <div class="col-12 col-sm-6 col-md-3">
-            <div class="step-card text-center">
-              <q-avatar
-                color="primary"
-                text-color="white"
-                size="56px"
-                icon="calculate"
-              />
-
-              <div class="text-subtitle1 text-weight-bold q-mt-md">
-                3. Check Your Price
-              </div>
-
-              <div class="text-body2 text-grey-7 q-mt-sm">
-                TurfBook calculates your price using the facility's pricing
-                rules.
-              </div>
-            </div>
-          </div>
-
-
+          <!-- Step 4 -->
           <div class="col-12 col-sm-6 col-md-3">
             <div class="step-card text-center">
               <q-avatar
@@ -119,11 +305,12 @@
               />
 
               <div class="text-subtitle1 text-weight-bold q-mt-md">
-                4. Confirm Booking
+                4. Review & Confirm
               </div>
 
               <div class="text-body2 text-grey-7 q-mt-sm">
-                Review the details and confirm your booking.
+                Review availability and the complete pricing breakdown
+                before confirming the booking.
               </div>
             </div>
           </div>
@@ -131,7 +318,6 @@
         </div>
       </q-card-section>
     </q-card>
-
 
     <!-- Pricing -->
     <q-card flat bordered class="info-card q-mb-lg">
@@ -142,11 +328,10 @@
         </div>
 
         <div class="text-body1 text-grey-7 q-mb-xl">
-          Each facility can have its own pricing rules. The final amount is
-          calculated based on the facility, selected time, date, discounts,
-          and applicable tax.
+          FirstSteps uses a layered pricing system. A category can define
+          default pricing rules, while individual facilities can override
+          those defaults when necessary.
         </div>
-
 
         <!-- Pricing Flow -->
         <div class="pricing-flow">
@@ -163,7 +348,7 @@
             </div>
 
             <div class="text-body2 text-grey-7">
-              Starting price of the facility
+              Starting rate of the selected facility
             </div>
           </div>
 
@@ -178,15 +363,15 @@
             <q-avatar
               color="orange"
               text-color="white"
-              icon="trending_up"
+              icon="category"
             />
 
             <div class="text-subtitle1 text-weight-bold q-mt-sm">
-              Peak Time
+              Category Default
             </div>
 
             <div class="text-body2 text-grey-7">
-              Peak pricing may increase the rate
+              Default pricing rules for the facility's category
             </div>
           </div>
 
@@ -201,15 +386,15 @@
             <q-avatar
               color="blue"
               text-color="white"
-              icon="event"
+              icon="tune"
             />
 
             <div class="text-subtitle1 text-weight-bold q-mt-sm">
-              Weekend
+              Facility Override
             </div>
 
             <div class="text-body2 text-grey-7">
-              Weekend pricing may apply
+              Facility-specific rules can replace category defaults
             </div>
           </div>
 
@@ -228,11 +413,11 @@
             />
 
             <div class="text-subtitle1 text-weight-bold q-mt-sm">
-              Discount
+              Adjustments
             </div>
 
             <div class="text-body2 text-grey-7">
-              Applicable discounts are deducted
+              Applicable peak, weekend and discount rules
             </div>
           </div>
 
@@ -251,11 +436,11 @@
             />
 
             <div class="text-subtitle1 text-weight-bold q-mt-sm">
-              Tax
+              Final Price
             </div>
 
             <div class="text-body2 text-grey-7">
-              Applicable tax is added
+              Tax and all applicable pricing rules are reflected
             </div>
           </div>
 
@@ -264,149 +449,182 @@
       </q-card-section>
     </q-card>
 
-<!-- Pricing Example -->
-<q-card flat bordered class="info-card q-mb-lg">
-  <q-card-section>
+    <!-- Pricing Example -->
+    <q-card flat bordered class="info-card q-mb-lg">
+      <q-card-section>
 
-    <div class="text-h5 text-weight-bold q-mb-sm">
-      Example Price Calculation
-    </div>
+        <div class="text-h5 text-weight-bold q-mb-sm">
+          Example Price Calculation
+        </div>
 
-    <div class="text-body1 text-grey-7 q-mb-md">
-      Here's an example using the sample pricing rules for
-      <strong>Turf 1</strong> when booking for one hour on a
-      <strong>Saturday at 7:00 PM</strong>.
-    </div>
+        <div class="text-body1 text-grey-7 q-mb-md">
+          For example, suppose a facility has a base rate of
+          <strong>₹300 per person</strong> and the booking is made for
+          <strong>2 people</strong>.
+        </div>
 
-    <q-list bordered separator class="rounded-borders">
+        <q-list bordered separator class="rounded-borders">
 
-      <!-- Base Rate -->
-      <q-item>
-        <q-item-section>
-          <q-item-label class="text-weight-medium">
-            Base Rate
-          </q-item-label>
-          <q-item-label caption>
-            ₹800 × 1 hour
-          </q-item-label>
-        </q-item-section>
+          <!-- Base Rate -->
+          <q-item>
+            <q-item-section>
+              <q-item-label class="text-weight-medium">
+                Base Price
+              </q-item-label>
 
-        <q-item-section side>
-          <span>₹800.00</span>
-        </q-item-section>
-      </q-item>
+              <q-item-label caption>
+                ₹300 × 2 people
+              </q-item-label>
+            </q-item-section>
 
+            <q-item-section side>
+              <span>₹600.00</span>
+            </q-item-section>
+          </q-item>
 
-      <!-- Peak -->
-      <q-item>
-        <q-item-section>
-          <q-item-label class="text-weight-medium">
-            Peak Time
-          </q-item-label>
-          <q-item-label caption>
-            1.50× multiplier · 7:00 PM falls within peak hours
-          </q-item-label>
-        </q-item-section>
+          <!-- Discount -->
+          <q-item>
+            <q-item-section>
+              <q-item-label class="text-weight-medium">
+                Discount
+              </q-item-label>
 
-        <q-item-section side>
-          <span>₹1,200.00</span>
-        </q-item-section>
-      </q-item>
+              <q-item-label caption>
+                Any applicable category or facility discount
+              </q-item-label>
+            </q-item-section>
 
+            <q-item-section side>
+              <span class="text-positive">
+                Applied if applicable
+              </span>
+            </q-item-section>
+          </q-item>
 
-      <!-- Weekend -->
-      <q-item>
-        <q-item-section>
-          <q-item-label class="text-weight-medium">
-            Weekend
-          </q-item-label>
-          <q-item-label caption>
-            1.20× multiplier · Saturday
-          </q-item-label>
-        </q-item-section>
+          <!-- Tax -->
+          <q-item>
+            <q-item-section>
+              <q-item-label class="text-weight-medium">
+                Tax
+              </q-item-label>
 
-        <q-item-section side>
-          <span>₹1,440.00</span>
-        </q-item-section>
-      </q-item>
+              <q-item-label caption>
+                Calculated after applicable pricing adjustments
+              </q-item-label>
+            </q-item-section>
 
+            <q-item-section side>
+              <span>Added if applicable</span>
+            </q-item-section>
+          </q-item>
 
-      <!-- Discount -->
-      <q-item>
-        <q-item-section>
-          <q-item-label class="text-weight-medium">
-            Discount
-          </q-item-label>
-          <q-item-label caption>
-            10% discount
-          </q-item-label>
-        </q-item-section>
+          <!-- Final Price -->
+          <q-item class="bg-grey-2">
+            <q-item-section>
+              <q-item-label class="text-weight-bold">
+                Final Price
+              </q-item-label>
 
-        <q-item-section side>
-          <span>-₹144.00</span>
-        </q-item-section>
-      </q-item>
+              <q-item-label caption>
+                Displayed in the booking confirmation
+              </q-item-label>
+            </q-item-section>
 
+            <q-item-section side>
+              <span class="text-h6 text-primary text-weight-bold">
+                Calculated at booking
+              </span>
+            </q-item-section>
+          </q-item>
 
-      <!-- After Discount -->
-      <q-item>
-        <q-item-section>
-          <q-item-label class="text-weight-medium">
-            Price After Discount
-          </q-item-label>
-        </q-item-section>
+        </q-list>
 
-        <q-item-section side>
-          <span>₹1,296.00</span>
-        </q-item-section>
-      </q-item>
+        <div class="text-caption text-grey-6 q-mt-md">
+          The actual amount depends on the selected facility, quantity,
+          booking date/time, category pricing defaults, facility overrides,
+          discounts, peak or weekend rules, and applicable tax.
+        </div>
 
+      </q-card-section>
+    </q-card>
 
-      <!-- Tax -->
-      <q-item>
-        <q-item-section>
-          <q-item-label class="text-weight-medium">
-            Tax
-          </q-item-label>
-          <q-item-label caption>
-            18% of ₹1,296.00
-          </q-item-label>
-        </q-item-section>
+    <!-- Pricing Hierarchy -->
+    <q-card flat bordered class="info-card q-mb-lg">
+      <q-card-section>
 
-        <q-item-section side>
-          <span>+₹233.28</span>
-        </q-item-section>
-      </q-item>
+        <div class="text-h5 text-weight-bold q-mb-md">
+          Understanding Pricing Rules
+        </div>
 
+        <q-list bordered separator class="rounded-borders">
 
-      <!-- Final Price -->
-      <q-item class="bg-grey-2">
-        <q-item-section>
-          <q-item-label class="text-weight-bold">
-            Final Price
-          </q-item-label>
+          <q-item>
+            <q-item-section avatar>
+              <q-avatar
+                color="primary"
+                text-color="white"
+                icon="category"
+              />
+            </q-item-section>
 
-          <q-item-label caption>
-            After all applicable pricing rules
-          </q-item-label>
-        </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-weight-bold">
+                Category Default
+              </q-item-label>
 
-        <q-item-section side>
-          <span class="text-h6 text-primary text-weight-bold">
-            ₹1,529.28
-          </span>
-        </q-item-section>
-      </q-item>
+              <q-item-label caption>
+                Provides the standard pricing policy for facilities
+                belonging to that category.
+              </q-item-label>
+            </q-item-section>
+          </q-item>
 
-    </q-list>
+          <q-item>
+            <q-item-section avatar>
+              <q-avatar
+                color="orange"
+                text-color="white"
+                icon="business"
+              />
+            </q-item-section>
 
-    <div class="text-caption text-grey-6 q-mt-md">
-      Note: Each facility can have different pricing rules. This example
-      uses the sample rules configured for Turf 1.
-    </div>
+            <q-item-section>
+              <q-item-label class="text-weight-bold">
+                Facility Override
+              </q-item-label>
 
-  </q-card-section>
-</q-card>
+              <q-item-label caption>
+                Allows a specific facility to use its own pricing rule
+                instead of the category default.
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item>
+            <q-item-section avatar>
+              <q-avatar
+                color="green"
+                text-color="white"
+                icon="calculate"
+              />
+            </q-item-section>
+
+            <q-item-section>
+              <q-item-label class="text-weight-bold">
+                Booking Calculation
+              </q-item-label>
+
+              <q-item-label caption>
+                FirstSteps applies the applicable rules to calculate the
+                amount shown before confirmation.
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+
+        </q-list>
+
+      </q-card-section>
+    </q-card>
 
     <!-- Booking Guidelines -->
     <q-card flat bordered class="info-card">
@@ -420,11 +638,22 @@
 
           <q-item>
             <q-item-section avatar>
-              <q-icon name="check_circle" color="positive" />
+              <q-icon name="category" color="primary" />
             </q-item-section>
 
             <q-item-section>
-              Select an available facility and time slot before confirming.
+              Start by selecting the appropriate category and facility.
+            </q-item-section>
+          </q-item>
+
+          <q-item>
+            <q-item-section avatar>
+              <q-icon name="event_available" color="positive" />
+            </q-item-section>
+
+            <q-item-section>
+              Select an available date, time, quantity, or other required
+              booking information.
             </q-item-section>
           </q-item>
 
@@ -434,7 +663,7 @@
             </q-item-section>
 
             <q-item-section>
-              Review the calculated price before confirming your booking.
+              Always review the complete pricing breakdown before confirming.
             </q-item-section>
           </q-item>
 
@@ -444,7 +673,8 @@
             </q-item-section>
 
             <q-item-section>
-              A time slot that has already been booked cannot be booked again.
+              A facility cannot be booked when the requested availability
+              conflicts with an existing booking.
             </q-item-section>
           </q-item>
 
@@ -454,7 +684,8 @@
             </q-item-section>
 
             <q-item-section>
-              Your bookings can be viewed from the My Bookings section.
+              Confirmed bookings can be viewed through the booking section
+              of FirstSteps.
             </q-item-section>
           </q-item>
 
@@ -466,7 +697,6 @@
   </q-page>
 </template>
 
-
 <style scoped>
 .how-it-works-page {
   max-width: 1300px;
@@ -476,6 +706,17 @@
 .info-card {
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.95);
+}
+
+.category-card {
+  height: 100%;
+  padding: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.category-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
 
 .step-card {
@@ -493,7 +734,7 @@
 
 .price-step {
   text-align: center;
-  width: 150px;
+  width: 165px;
 }
 
 .flow-arrow {

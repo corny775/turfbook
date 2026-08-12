@@ -23,18 +23,57 @@
           {{ Number(selectedSlot.split(":")[0]) + 1 }}:00
         </div>
 
-        <div>
-          <b>Amount:</b>
+        <div v-if="pricingBreakdown.length" class="q-mt-md">
+  <div class="text-subtitle1 text-weight-bold q-mb-sm">
+    Pricing Breakdown
+  </div>
 
-          <span v-if="calculatedPrice !== null">
-            ₹{{ calculatedPrice.toFixed(2) }}
-          </span>
+  <div
+    v-for="item in pricingBreakdown"
+    :key="item.label"
+    class="row justify-between q-py-xs"
+  >
+    <span>{{ item.label }}</span>
 
-          <span v-else>
-            Calculating...
-          </span>
+    <span
+      :class="
+        item.type === 'discount'
+          ? 'text-positive'
+          : ''
+      "
+    >
+      {{ item.amount < 0 ? '-' : '+' }}₹{{
+        Math.abs(item.amount).toFixed(2)
+      }}
+    </span>
+  </div>
 
-        </div>
+  <q-separator class="q-my-sm" />
+
+  <div class="row justify-between text-weight-bold">
+    <span>Total</span>
+
+    <span v-if="calculatedPrice !== null">
+      ₹{{ calculatedPrice.toFixed(2) }}
+    </span>
+
+    <span v-else>
+      Calculating...
+    </span>
+  </div>
+</div>
+
+<div v-else>
+  <b>Amount:</b>
+
+  <span v-if="calculatedPrice !== null">
+    ₹{{ calculatedPrice.toFixed(2) }}
+  </span>
+
+  <span v-else>
+    Calculating...
+  </span>
+</div>
 
       </q-card-section>
 
@@ -75,6 +114,13 @@ defineProps<{
   selectedDate: string;
   selectedSlot: string;
   calculatedPrice: number | null;
+
+  pricingBreakdown: Array<{
+    label: string;
+    type: string;
+    amount: number;
+  }>;
+
   confirmLoading: boolean;
 }>();
 

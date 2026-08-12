@@ -3,13 +3,16 @@
     <q-card class="signup-card q-pa-md">
 
       <div class="column items-center q-mb-md">
-        <q-avatar size="56px" color="primary" text-color="white" class="q-mb-sm">
-          <q-icon name="sports_soccer" size="30px" />
-        </q-avatar>
+        <q-avatar size="32px" class="q-mr-sm">
+  <img
+    src="/fslogo1.png"
+    alt="FirstSteps"
+  />
+</q-avatar>
 
         <div class="text-h5 text-weight-bold">Create Account</div>
         <div class="text-body2 text-grey-7">
-          Join TurfBook
+          Join FirstSteps
         </div>
       </div>
 

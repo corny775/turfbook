@@ -3,11 +3,14 @@
     <q-card class="login-card q-pa-lg">
 
       <div class="column items-center q-mb-lg">
-        <q-avatar size="56px" color="primary" text-color="white" class="q-mb-sm">
-          <q-icon name="sports_soccer" size="30px" />
-        </q-avatar>
+        <q-avatar size="32px" class="q-mr-sm">
+  <img
+    src="/fslogo1.png"
+    alt="FirstSteps"
+  />
+</q-avatar>
 
-        <div class="text-h5 text-weight-bold">TurfBook</div>
+        <div class="text-h5 text-weight-bold">FirstSteps</div>
         <div class="text-body2 text-grey-7">Sign in to manage your bookings</div>
       </div>
 
@@ -36,7 +39,7 @@
           class="q-mb-md"
           :rules="[
             val => !!val || 'Password is required',
-            val => val.length >= 8 || 'Password must be a length of atleast 8 characters'
+            val => val.length >= 6 || 'Password must be a length of atleast 6 characters'
           ]"
         >
           <template v-slot:prepend>

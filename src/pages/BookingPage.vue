@@ -156,6 +156,7 @@
         :selected-date="selectedDate"
         :selected-slot="selectedSlot"
         :calculated-price="calculatedPrice"
+          :pricing-breakdown="pricingBreakdown"
         :confirm-loading="confirmLoading"
         @close="closeConfirmDialog"
         @confirm-booking="confirmBooking"
@@ -205,6 +206,13 @@ const selectedSlot = ref("");
 const confirmLoading = ref(false);
 const dialogLoading = ref(false);
 const calculatedPrice = ref<number | null>(null);
+const pricingBreakdown = ref<
+  Array<{
+    label: string;
+    type: string;
+    amount: number;
+  }>
+>([]);
 const quantity = ref(1);
 const hasExistingBooking = ref(false);
 const checkingAvailability = ref(false);
@@ -246,6 +254,7 @@ function closeConfirmDialog() {
   confirmDialog.value = false;
   selectedSlot.value = "";
   calculatedPrice.value = null;
+  pricingBreakdown.value = [];
   quantity.value = 1;
 }
 
@@ -306,6 +315,7 @@ async function calculatePrice(slot: string) {
 });
 
     calculatedPrice.value = response.data.finalPrice;
+pricingBreakdown.value = response.data.breakdown ?? [];
   } catch (err) {
     console.error(err);
 
@@ -337,8 +347,9 @@ async function calculateNonHourlyPrice() {
     });
 
     calculatedPrice.value = response.data.finalPrice;
+pricingBreakdown.value = response.data.breakdown ?? [];
 
-    selectedSlot.value = "00:00";
+selectedSlot.value = "00:00";
 
     confirmDialog.value = true;
   } catch (err) {

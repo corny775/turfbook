@@ -17,11 +17,14 @@
         />
 
         <q-avatar size="32px" class="q-mr-sm">
-          <q-icon name="sports_soccer" size="24px" />
-        </q-avatar>
+  <img
+    src="/fslogo.png"
+    alt="FirstSteps"
+  />
+</q-avatar>
 
         <q-toolbar-title class="text-weight-bold">
-          TurfBook
+          FirstSteps
         </q-toolbar-title>
 
         <q-btn

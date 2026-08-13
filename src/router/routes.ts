@@ -38,6 +38,10 @@ const routes: RouteRecordRaw[] = [
   path: "admin/bookings",
   component: () => import("@/pages/BookingsDashboardPage.vue"),
 },
+{
+  path: "admin/analytics",
+  component: () => import("@/pages/AnalyticsPage.vue"),
+},
     ],
   },
 

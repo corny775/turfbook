@@ -9,14 +9,6 @@
         </div>
       </div>
 
-      <q-btn
-        outline
-        color="primary"
-        icon="refresh"
-        label="Refresh"
-        :loading="loading"
-        @click="loadBookings"
-      />
     </div>
 
     <!-- Loading skeletons -->

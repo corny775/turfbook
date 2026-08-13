@@ -130,6 +130,16 @@
       </q-item-section>
     </q-item>
 
+    <q-item clickable v-ripple to="/admin/analytics" exact>
+      <q-item-section avatar>
+        <q-icon name="analytics" />
+      </q-item-section>
+
+      <q-item-section>
+        Analytics
+      </q-item-section>
+    </q-item>
+
   </template>
 
 </q-list>

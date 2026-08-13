@@ -173,25 +173,14 @@
               ]"
             />
 
-            <q-select
+            <q-input
   outlined
-  v-model="form.pricing_unit"
+  :model-value="
+    categoryPricing[authStore.categoryId ?? 0]?.label ?? ''
+  "
   label="Pricing Unit"
-  :options="[
-    { label: 'Hour', value: 'hour' },
-    { label: 'Day', value: 'day' },
-    { label: 'Night', value: 'night' },
-    { label: 'Event', value: 'event' },
-    { label: 'Person', value: 'person' },
-    { label: 'Session', value: 'session' },
-    { label: 'Item', value: 'item' }
-  ]"
-  emit-value
-  map-options
+  readonly
   class="q-mb-md"
-  :rules="[
-    val => !!val || 'Pricing unit is required'
-  ]"
 />
 
             <q-input
@@ -217,6 +206,9 @@
   label="Slot Duration (minutes)"
   :rules="[
     val =>
+      Number(val) <= 60 ||
+      'Slot duration must be lesser than  or equal to 60',
+      val =>
       Number(val) > 0 ||
       'Slot duration must be greater than 0'
   ]"
@@ -258,6 +250,7 @@ import { useQuasar } from 'quasar';
 import type { QTableColumn } from 'quasar';
 import axios from 'axios';
 import api from '@/services/api';
+import { useAuthStore } from '@/stores/auth';
 
 interface Facility {
   id: number;
@@ -281,6 +274,23 @@ interface FacilityForm {
 
 const facilities = ref<Facility[]>([]);
 const $q = useQuasar();
+const authStore = useAuthStore();
+
+const categoryPricing: Record<number, {
+  unit: string;
+  label: string;
+  defaultRate: number;
+}> = {
+  1: { unit: 'hour', label: 'Hour', defaultRate: 500 },
+  2: { unit: 'hour', label: 'Hour', defaultRate: 800 },
+  3: { unit: 'event', label: 'Event', defaultRate: 10000 },
+  4: { unit: 'hour', label: 'Hour', defaultRate: 1000 },
+  5: { unit: 'person', label: 'Person', defaultRate: 300 },
+  6: { unit: 'night', label: 'Night', defaultRate: 2500 },
+  7: { unit: 'session', label: 'Session', defaultRate: 800 },
+  8: { unit: 'hour', label: 'Hour', defaultRate: 500 },
+  9: { unit: 'hour', label: 'Hour', defaultRate: 200 },
+};
 
 const loading = ref(false);
 const saveLoading = ref(false);
@@ -342,9 +352,11 @@ function resetForm() {
     id: null,
     name: "",
     type: "",
-    base_rate: 0,
-    pricing_unit: "hour",
-    slot_duration: 60,
+    base_rate:
+  categoryPricing[authStore.categoryId ?? 0]?.defaultRate ?? 500,
+pricing_unit:
+  categoryPricing[authStore.categoryId ?? 0]?.unit ?? 'hour',
+slot_duration: 60,
     capacity: null,
   };
 }

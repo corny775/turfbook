@@ -189,7 +189,17 @@ const columns: QTableColumn<Booking>[] = [
   {
     name: "booking_date",
     label: "Date",
-    field: (row) => row.booking_date.substring(0, 10),
+    field: (row) => {
+  const [year, month, day] = row.booking_date.substring(0, 10).split('-');
+  const date = new Date(Number(year), Number(month) - 1, Number(day) + 2);
+  date.setDate(date.getDate() - 1);
+
+  return date.toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+},
     align: "left",
     sortable: true,
   },

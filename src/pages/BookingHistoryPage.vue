@@ -154,7 +154,14 @@ function statusClass(status: string) {
 }
 
 function formatDate(dateStr: string) {
-  const date = new Date(dateStr.substring(0, 10));
+  const [year, month, day] = dateStr.substring(0, 10).split('-');
+
+  const date = new Date(
+    Number(year),
+    Number(month) - 1,
+    Number(day) + 1
+  );
+
   return date.toLocaleDateString('en-IN', {
     weekday: 'short',
     day: 'numeric',
